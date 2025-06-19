@@ -2,11 +2,8 @@ import { TypeOrmModuleOptions } from "@nestjs/typeorm";
 import { ConfigService } from "@nestjs/config";
 
 export const typeOrmConfig = (configService: ConfigService): TypeOrmModuleOptions => ({
-    type: 'postgres',
-    url: `postgresql://postgres.fyxacgunrakumvzuawwt:${configService.get('PASSWORD')}@aws-0-ap-northeast-2.pooler.supabase.com:5432/postgres`,
+    type: 'mongodb',
+    url: configService.get<string>('MONGODB_URI') || 'mongodb://localhost:27017/hanghae-crud',
     entities: [__dirname + '/../**/*.entity.{js,ts}'],
-    ssl: {
-        rejectUnauthorized: false
-    },
     synchronize: true
 });

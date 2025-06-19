@@ -1,13 +1,25 @@
-import { BaseEntity, Column, Entity, PrimaryGeneratedColumn } from "typeorm";
+import { Entity, ObjectIdColumn, Column, ObjectId } from "typeorm";
 
-@Entity()
-export class Board extends BaseEntity {
-    @PrimaryGeneratedColumn()
-    id: number;
+@Entity('posts')
+export class Board {
+    @ObjectIdColumn()
+    _id: ObjectId;
 
     @Column()
     title: string;
 
     @Column()
-    description: string;
+    author: string;
+
+    @Column()
+    password: string;
+
+    @Column()
+    content: string;
+
+    @Column()
+    createdAt: Date;
+
+    @Column()
+    updatedAt: Date;
 }
