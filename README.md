@@ -37,7 +37,7 @@ Nest.JS로 CRUD, 로그인, 회원가입, 댓글 기능 구현하기
 ### 아키텍처 설계
 
 <details>
-<summary><strong>아키텍처 설계 (클릭하여 펼치기)</strong></summary>
+<summary><strong>DB 설계, 프로젝트 구조 (클릭하여 펼치기)</strong></summary>
 
 #### 1. 데이터베이스 설계
 ```
