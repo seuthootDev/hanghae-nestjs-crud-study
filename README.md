@@ -4,8 +4,6 @@
 Nest.JS로 CRUD, 로그인, 회원가입, 댓글 기능 구현하기
 </aside>
 
-- 
-
 ## 목표 (Goals)
 
 <aside>
@@ -19,8 +17,6 @@ Nest.JS로 CRUD, 로그인, 회원가입, 댓글 기능 구현하기
 • RESTful API 설계 및 구현<br>
 • 유효성 검사
 </aside>
-
-- 
 
 ## 계획 (Plan)
 
