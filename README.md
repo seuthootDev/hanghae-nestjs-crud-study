@@ -7,15 +7,15 @@ Nest.JS로 CRUD, 로그인, 회원가입, 댓글 기능 구현하기
 ## 목표 (Goals)
 
 <aside>
-• NestJS와 TypeORM을 사용한 게시판 CRUD API 구현<br>
-• MongoDB Atlas를 활용, (이후 MySQL)<br>
-• 게시글 작성, 조회, 수정, 삭제 기능 완성<br>
-• 댓글 시스템 구현 (작성, 조회, 수정, 삭제)<br>
-• 회원가입 및 로그인 시스템 구현<br>
-• JWT 기반 인증 시스템 구현<br>
-• 비밀번호 기반 게시글 보안 기능 구현<br>
-• RESTful API 설계 및 구현<br>
-• 유효성 검사
+- NestJS와 TypeORM을 사용한 게시판 CRUD API 구현
+- MongoDB Atlas를 활용, (이후 MySQL)
+- 게시글 작성, 조회, 수정, 삭제 기능 완성
+- 댓글 시스템 구현 (작성, 조회, 수정, 삭제)
+- 회원가입 및 로그인 시스템 구현
+- JWT 기반 인증 시스템 구현
+- 비밀번호 기반 게시글 보안 기능 구현
+- RESTful API 설계 및 구현
+- 유효성 검사
 </aside>
 
 ## 계획 (Plan)
@@ -27,14 +27,17 @@ Nest.JS로 CRUD, 로그인, 회원가입, 댓글 기능 구현하기
 ![API 명세서](images/API.jpg)
 
 ### 기술 스택 (Tech Stack)
-• **Backend Framework**: NestJS<br>
-• **Database**: MongoDB Atlas (이후 MySQL 변경)<br>
-• **ORM**: TypeORM<br>
-• **Validation**: class-validator, class-transformer<br>
-• **Authentication**: JWT (jsonwebtoken)<br>
-• **Language**: TypeScript
+- **Backend Framework**: NestJS
+- **Database**: MongoDB Atlas (이후 MySQL 변경)
+- **ORM**: TypeORM
+- **Validation**: class-validator, class-transformer
+- **Authentication**: JWT (jsonwebtoken)
+- **Language**: TypeScript
 
 ### 아키텍처 설계
+
+<details>
+<summary><strong>아키텍처 설계 (클릭하여 펼치기)</strong></summary>
 
 #### 1. 데이터베이스 설계
 ```
@@ -102,36 +105,40 @@ src/
 └── configs/               // 설정 파일
     └── typeorm.config.ts
 ```
+</details>
 
 #### 3. 구현 방식
 
 **DTO (Data Transfer Object) 활용**
-• `SignupDto`: 회원가입 시 유효성 검사 (닉네임, 비밀번호, 비밀번호 확인)<br>
-• `LoginDto`: 로그인 시 유효성 검사 (닉네임, 비밀번호)<br>
-• `CreateBoardDto`: 게시글 생성 시 유효성 검사<br>
-• `UpdateBoardDto`: 게시글 수정 시 유효성 검사<br>
-• `CreateCommentDto`: 댓글 생성 시 유효성 검사<br>
-• `UpdateCommentDto`: 댓글 수정 시 유효성 검사
+- `SignupDto`: 회원가입 시 유효성 검사 (닉네임, 비밀번호, 비밀번호 확인)
+- `LoginDto`: 로그인 시 유효성 검사 (닉네임, 비밀번호)
+- `CreateBoardDto`: 게시글 생성 시 유효성 검사
+- `UpdateBoardDto`: 게시글 수정 시 유효성 검사
+- `CreateCommentDto`: 댓글 생성 시 유효성 검사
+- `UpdateCommentDto`: 댓글 수정 시 유효성 검사
 
 **Repository 패턴**
-• TypeORM Repository를 래핑한 커스텀 Repository 클래스 구현<br>
-• 데이터베이스 접근 로직을 Service와 분리<br>
-• 재사용 가능한 데이터베이스 쿼리 메서드 제공<br>
+- TypeORM Repository를 래핑한 커스텀 Repository 클래스 구현
+- 데이터베이스 접근 로직을 Service와 분리
+- 재사용 가능한 데이터베이스 쿼리 메서드 제공
 
 **TypeORM 활용**
-• MongoDB 연결 및 엔티티 매핑<br>
-• 관계 설정 (사용자 ↔ 게시글 ↔ 댓글)<br>
-• 자동 타임스탬프 생성<br>
-• 쿼리 빌더를 통한 효율적인 데이터 조회
+- MongoDB 연결 및 엔티티 매핑
+- 관계 설정 (사용자 ↔ 게시글 ↔ 댓글)
+- 자동 타임스탬프 생성
+- 쿼리 빌더를 통한 효율적인 데이터 조회
 
 **JWT 인증 시스템**
-• JWT 토큰 생성 및 검증<br>
-• 쿠키 기반 토큰 전송<br>
-• 인증 가드를 통한 보호된 라우트 구현
+- JWT 토큰 생성 및 검증
+- 쿠키 기반 토큰 전송
+- 인증 가드를 통한 보호된 라우트 구현
+
+
 
 #### 4. API 설계
 
-##### *요구사항*
+<details>
+<summary><strong>요구사항항 (클릭하여 펼치기)</strong></summary>
 ```
 1. 전체 게시글 목록 조회 API
     - 제목, 작성자명, 작성 날짜를 조회하기
@@ -169,6 +176,7 @@ src/
 - 로그인 버튼을 누른 경우 닉네임과 비밀번호가 데이터베이스에 등록됐는지 확인한 뒤, 하나라도 맞지 않는 정보가 있다면 "닉네임 또는 패스워드를 확인해주세요."라는 에러 메세지를 **response**에 포함하기
 - 로그인 성공 시, 로그인에 성공한 유저의 정보를 JWT를 활용하여 클라이언트에게 Cookie로 전달하기
 ```
+</details>
 
 **인증 API**
 ```
@@ -194,6 +202,9 @@ PUT    /comments/:id        # 댓글 수정
 DELETE /comments/:id        # 댓글 삭제
 ```
 
+
+
+
 #### 5. 보안 및 유효성 검사
 • **회원가입 유효성 검사**
   - 닉네임: 최소 3자, 알파벳 대소문자 + 숫자만 허용
@@ -215,8 +226,8 @@ DELETE /comments/:id        # 댓글 삭제
   - HTTP 상태 코드를 통한 적절한 에러 응답
 
 #### 6. 에러 처리
-• 400 Bad Request: 잘못된 요청 데이터, 유효성 검사 실패
-• 401 Unauthorized: 비밀번호 불일치, 인증 실패
-• 409 Conflict: 중복된 닉네임
-• 404 Not Found: 리소스를 찾을 수 없음
-• 500 Internal Server Error: 서버 내부 오류
+- 400 Bad Request: 잘못된 요청 데이터, 유효성 검사 실패
+- 401 Unauthorized: 비밀번호 불일치, 인증 실패
+- 409 Conflict: 중복된 닉네임
+- 404 Not Found: 리소스를 찾을 수 없음
+- 500 Internal Server Error: 서버 내부 오류
