@@ -1,98 +1,227 @@
-<p align="center">
-  <a href="http://nestjs.com/" target="blank"><img src="https://nestjs.com/img/logo-small.svg" width="120" alt="Nest Logo" /></a>
-</p>
+## 프로젝트 요약 (Summary)
 
-[circleci-image]: https://img.shields.io/circleci/build/github/nestjs/nest/master?token=abc123def456
-[circleci-url]: https://circleci.com/gh/nestjs/nest
+<aside>
+Nest.JS로 CRUD, 로그인, 회원가입, 댓글 기능 구현하기
 
-  <p align="center">A progressive <a href="http://nodejs.org" target="_blank">Node.js</a> framework for building efficient and scalable server-side applications.</p>
-    <p align="center">
-<a href="https://www.npmjs.com/~nestjscore" target="_blank"><img src="https://img.shields.io/npm/v/@nestjs/core.svg" alt="NPM Version" /></a>
-<a href="https://www.npmjs.com/~nestjscore" target="_blank"><img src="https://img.shields.io/npm/l/@nestjs/core.svg" alt="Package License" /></a>
-<a href="https://www.npmjs.com/~nestjscore" target="_blank"><img src="https://img.shields.io/npm/dm/@nestjs/common.svg" alt="NPM Downloads" /></a>
-<a href="https://circleci.com/gh/nestjs/nest" target="_blank"><img src="https://img.shields.io/circleci/build/github/nestjs/nest/master" alt="CircleCI" /></a>
-<a href="https://discord.gg/G7Qnnhy" target="_blank"><img src="https://img.shields.io/badge/discord-online-brightgreen.svg" alt="Discord"/></a>
-<a href="https://opencollective.com/nest#backer" target="_blank"><img src="https://opencollective.com/nest/backers/badge.svg" alt="Backers on Open Collective" /></a>
-<a href="https://opencollective.com/nest#sponsor" target="_blank"><img src="https://opencollective.com/nest/sponsors/badge.svg" alt="Sponsors on Open Collective" /></a>
-  <a href="https://paypal.me/kamilmysliwiec" target="_blank"><img src="https://img.shields.io/badge/Donate-PayPal-ff3f59.svg" alt="Donate us"/></a>
-    <a href="https://opencollective.com/nest#sponsor"  target="_blank"><img src="https://img.shields.io/badge/Support%20us-Open%20Collective-41B883.svg" alt="Support us"></a>
-  <a href="https://twitter.com/nestframework" target="_blank"><img src="https://img.shields.io/twitter/follow/nestframework.svg?style=social&label=Follow" alt="Follow us on Twitter"></a>
-</p>
-  <!--[![Backers on Open Collective](https://opencollective.com/nest/backers/badge.svg)](https://opencollective.com/nest#backer)
-  [![Sponsors on Open Collective](https://opencollective.com/nest/sponsors/badge.svg)](https://opencollective.com/nest#sponsor)-->
+</aside>
 
-## Description
+- 
 
-[Nest](https://github.com/nestjs/nest) framework TypeScript starter repository.
+## 목표 (Goals)
 
-## Project setup
+<aside>
+• NestJS와 TypeORM을 사용한 게시판 CRUD API 구현
+• MongoDB Atlas를 활용, (이후 MySQL)
+• 게시글 작성, 조회, 수정, 삭제 기능 완성
+• 댓글 시스템 구현 (작성, 조회, 수정, 삭제)
+• 회원가입 및 로그인 시스템 구현
+• JWT 기반 인증 시스템 구현
+• 비밀번호 기반 게시글 보안 기능 구현
+• RESTful API 설계 및 구현
+• 유효성 검사
+</aside>
 
-```bash
-$ npm install
+- 
+
+## 계획 (Plan)
+
+### 유스케이스 (UseCase)
+[](images/UseCase.jpg)
+
+### API명세서 (API Specification)
+[](images/API.jpg)
+
+### 기술 스택 (Tech Stack)
+• **Backend Framework**: NestJS
+• **Database**: MongoDB Atlas (이후 MySQL 변경)
+• **ORM**: TypeORM
+• **Validation**: class-validator, class-transformer
+• **Authentication**: JWT (jsonwebtoken)
+• **Language**: TypeScript
+
+### 아키텍처 설계
+
+#### 1. 데이터베이스 설계
+```
+users 컬렉션:
+{
+  _id: ObjectId,
+  nickname: String,         // 닉네임 (고유값)
+  password: String,         // 암호화된 비밀번호
+  createdAt: Date,          // 가입일
+  updatedAt: Date           // 수정일
+}
+
+posts 컬렉션:
+{
+  _id: ObjectId,
+  title: String,           // 제목
+  author: String,          // 작성자명
+  password: String,        // 비밀번호
+  content: String,         // 내용
+  createdAt: Date,         // 작성시간
+  updatedAt: Date          // 수정시간
+}
+
+comments 컬렉션:
+{
+  _id: ObjectId,
+  postId: ObjectId,        // 게시글 ID (참조)
+  content: String,         // 댓글 내용
+  createdAt: Date,         // 작성시간
+  updatedAt: Date          // 수정시간
+}
 ```
 
-## Compile and run the project
-
-```bash
-# development
-$ npm run start
-
-# watch mode
-$ npm run start:dev
-
-# production mode
-$ npm run start:prod
+#### 2. 프로젝트 구조
+```
+src/
+├── dto/                   // DTO
+│   ├── auth/
+│   │   ├── signup.dto.ts
+│   │   └── login.dto.ts
+│   ├── create-board.dto.ts
+│   ├── update-board.dto.ts
+│   ├── create-comment.dto.ts
+│   └── update-comment.dto.ts
+├── entities/              // TypeORM 엔티티
+│   ├── user.entity.ts
+│   ├── board.entity.ts
+│   └── comment.entity.ts
+├── repositories/          // 데이터베이스 접근 계층
+│   ├── user.repository.ts
+│   ├── board.repository.ts
+│   └── comment.repository.ts
+├── services/              // 비즈니스 로직 계층
+│   ├── auth.service.ts
+│   ├── board.service.ts
+│   └── comment.service.ts
+├── controllers/           // API 엔드포인트
+│   ├── auth.controller.ts
+│   ├── board.controller.ts
+│   └── comment.controller.ts
+├── guards/                // 인증 가드
+│   └── jwt-auth.guard.ts
+├── strategies/            // JWT 전략
+│   └── jwt.strategy.ts
+└── configs/               // 설정 파일
+    └── typeorm.config.ts
 ```
 
-## Run tests
+#### 3. 구현 방식
 
-```bash
-# unit tests
-$ npm run test
+**DTO (Data Transfer Object) 활용**
+• `SignupDto`: 회원가입 시 유효성 검사 (닉네임, 비밀번호, 비밀번호 확인)
+• `LoginDto`: 로그인 시 유효성 검사 (닉네임, 비밀번호)
+• `CreateBoardDto`: 게시글 생성 시 유효성 검사
+• `UpdateBoardDto`: 게시글 수정 시 유효성 검사
+• `CreateCommentDto`: 댓글 생성 시 유효성 검사
+• `UpdateCommentDto`: 댓글 수정 시 유효성 검사
 
-# e2e tests
-$ npm run test:e2e
+**Repository 패턴**
+• TypeORM Repository를 래핑한 커스텀 Repository 클래스 구현
+• 데이터베이스 접근 로직을 Service와 분리
+• 재사용 가능한 데이터베이스 쿼리 메서드 제공
 
-# test coverage
-$ npm run test:cov
+**TypeORM 활용**
+• MongoDB 연결 및 엔티티 매핑
+• 관계 설정 (사용자 ↔ 게시글 ↔ 댓글)
+• 자동 타임스탬프 생성
+• 쿼리 빌더를 통한 효율적인 데이터 조회
+
+**JWT 인증 시스템**
+• JWT 토큰 생성 및 검증
+• 쿠키 기반 토큰 전송
+• 인증 가드를 통한 보호된 라우트 구현
+
+#### 4. API 설계
+
+##### *요구사항*
+```
+1. 전체 게시글 목록 조회 API
+    - 제목, 작성자명, 작성 날짜를 조회하기
+    - 작성 날짜 기준으로 내림차순 정렬하기
+2. 게시글 작성 API
+    - 제목, 작성자명, 비밀번호, 작성 내용을 입력하기
+3. 게시글 조회 API
+    - 제목, 작성자명, 작성 날짜, 작성 내용을 조회하기 
+    (검색 기능이 아닙니다. 간단한 게시글 조회만 구현해주세요.)
+4. 게시글 수정 API
+    - API를 호출할 때 입력된 비밀번호를 비교하여 동일할 때만 글이 수정되게 하기
+5. 게시글 삭제 API
+    - API를 호출할 때 입력된 비밀번호를 비교하여 동일할 때만 글이 삭제되게 하기
+6. 댓글 목록 조회
+    - 조회하는 게시글에 작성된 모든 댓글을 목록 형식으로 볼 수 있도록 하기
+    - 작성 날짜 기준으로 내림차순 정렬하기
+7. 댓글 작성
+    - 댓글 내용을 비워둔 채 댓글 작성 API를 호출하면 "댓글 내용을 입력해주세요" 라는 메세지를 return하기
+    - 댓글 내용을 입력하고 댓글 작성 API를 호출한 경우 작성한 댓글을 추가하기
+8. 댓글 수정
+    - 댓글 내용을 비워둔 채 댓글 수정 API를 호출하면 "댓글 내용을 입력해주세요" 라는 메세지를 return하기
+    - 댓글 내용을 입력하고 댓글 수정 API를 호출한 경우 작성한 댓글을 수정하기
+9. 댓글 삭제
+    - 원하는 댓글을 삭제하기
+
+1. 회원 가입 API
+- 닉네임, 비밀번호, 비밀번호 확인을 **request**에서 전달받기
+- 닉네임은 `최소 3자 이상, 알파벳 대소문자(a~z, A~Z), 숫자(0~9)`로 구성하기
+- 비밀번호는 `최소 4자 이상이며, 닉네임과 같은 값이 포함된 경우 회원가입에 실패`로 만들기
+- 비밀번호 확인은 비밀번호와 정확하게 일치하기
+- 데이터베이스에 존재하는 닉네임을 입력한 채 회원가입 버튼을 누른 경우 "중복된 닉네임입니다." 라는 에러메세지를 **response**에 포함하기
+
+2. 로그인 API
+- 닉네임, 비밀번호를 **request**에서 전달받기
+- 로그인 버튼을 누른 경우 닉네임과 비밀번호가 데이터베이스에 등록됐는지 확인한 뒤, 하나라도 맞지 않는 정보가 있다면 "닉네임 또는 패스워드를 확인해주세요."라는 에러 메세지를 **response**에 포함하기
+- 로그인 성공 시, 로그인에 성공한 유저의 정보를 JWT를 활용하여 클라이언트에게 Cookie로 전달하기
 ```
 
-## Deployment
-
-When you're ready to deploy your NestJS application to production, there are some key steps you can take to ensure it runs as efficiently as possible. Check out the [deployment documentation](https://docs.nestjs.com/deployment) for more information.
-
-If you are looking for a cloud-based platform to deploy your NestJS application, check out [Mau](https://mau.nestjs.com), our official platform for deploying NestJS applications on AWS. Mau makes deployment straightforward and fast, requiring just a few simple steps:
-
-```bash
-$ npm install -g @nestjs/mau
-$ mau deploy
+**인증 API**
+```
+POST   /auth/signup         # 회원가입
+POST   /auth/login          # 로그인
+POST   /auth/logout         # 로그아웃
 ```
 
-With Mau, you can deploy your application in just a few clicks, allowing you to focus on building features rather than managing infrastructure.
+**게시글 API**
+```
+GET    /boards              # 전체 게시글 목록 조회
+GET    /boards/:id          # 특정 게시글 조회
+POST   /boards              # 게시글 작성
+PUT    /boards/:id          # 게시글 수정 (비밀번호 확인)
+DELETE /boards/:id          # 게시글 삭제 (비밀번호 확인)
+```
 
-## Resources
+**댓글 API**
+```
+GET    /boards/:id/comments # 게시글의 댓글 목록 조회
+POST   /boards/:id/comments # 댓글 작성
+PUT    /comments/:id        # 댓글 수정
+DELETE /comments/:id        # 댓글 삭제
+```
 
-Check out a few resources that may come in handy when working with NestJS:
+#### 5. 보안 및 유효성 검사
+• **회원가입 유효성 검사**
+  - 닉네임: 최소 3자, 알파벳 대소문자 + 숫자만 허용
+  - 비밀번호: 최소 4자, 닉네임 포함 시 실패
+  - 비밀번호 확인: 비밀번호와 일치 확인
+  - 닉네임 중복 검사
 
-- Visit the [NestJS Documentation](https://docs.nestjs.com) to learn more about the framework.
-- For questions and support, please visit our [Discord channel](https://discord.gg/G7Qnnhy).
-- To dive deeper and get more hands-on experience, check out our official video [courses](https://courses.nestjs.com/).
-- Deploy your application to AWS with the help of [NestJS Mau](https://mau.nestjs.com) in just a few clicks.
-- Visualize your application graph and interact with the NestJS application in real-time using [NestJS Devtools](https://devtools.nestjs.com).
-- Need help with your project (part-time to full-time)? Check out our official [enterprise support](https://enterprise.nestjs.com).
-- To stay in the loop and get updates, follow us on [X](https://x.com/nestframework) and [LinkedIn](https://linkedin.com/company/nestjs).
-- Looking for a job, or have a job to offer? Check out our official [Jobs board](https://jobs.nestjs.com).
+• **로그인 보안**
+  - 비밀번호 해싱 (bcrypt)
+  - JWT 토큰 기반 인증
+  - 쿠키 기반 토큰 전송
 
-## Support
+• **게시글 보안**
+  - 비밀번호 기반 게시글 수정/삭제 인증
+  - class-validator를 통한 입력 데이터 유효성 검사
 
-Nest is an MIT-licensed open source project. It can grow thanks to the sponsors and support by the amazing backers. If you'd like to join them, please [read more here](https://docs.nestjs.com/support).
+• **댓글 유효성 검사**
+  - 댓글 내용 빈 값 검증
+  - HTTP 상태 코드를 통한 적절한 에러 응답
 
-## Stay in touch
-
-- Author - [Kamil Myśliwiec](https://twitter.com/kammysliwiec)
-- Website - [https://nestjs.com](https://nestjs.com/)
-- Twitter - [@nestframework](https://twitter.com/nestframework)
-
-## License
-
-Nest is [MIT licensed](https://github.com/nestjs/nest/blob/master/LICENSE).
+#### 6. 에러 처리
+• 400 Bad Request: 잘못된 요청 데이터, 유효성 검사 실패
+• 401 Unauthorized: 비밀번호 불일치, 인증 실패
+• 409 Conflict: 중복된 닉네임
+• 404 Not Found: 리소스를 찾을 수 없음
+• 500 Internal Server Error: 서버 내부 오류
