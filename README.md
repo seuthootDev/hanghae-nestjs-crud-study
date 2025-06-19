@@ -2,7 +2,6 @@
 
 <aside>
 Nest.JS로 CRUD, 로그인, 회원가입, 댓글 기능 구현하기
-
 </aside>
 
 - 
@@ -10,14 +9,14 @@ Nest.JS로 CRUD, 로그인, 회원가입, 댓글 기능 구현하기
 ## 목표 (Goals)
 
 <aside>
-• NestJS와 TypeORM을 사용한 게시판 CRUD API 구현
-• MongoDB Atlas를 활용, (이후 MySQL)
-• 게시글 작성, 조회, 수정, 삭제 기능 완성
-• 댓글 시스템 구현 (작성, 조회, 수정, 삭제)
-• 회원가입 및 로그인 시스템 구현
-• JWT 기반 인증 시스템 구현
-• 비밀번호 기반 게시글 보안 기능 구현
-• RESTful API 설계 및 구현
+• NestJS와 TypeORM을 사용한 게시판 CRUD API 구현<br>
+• MongoDB Atlas를 활용, (이후 MySQL)<br>
+• 게시글 작성, 조회, 수정, 삭제 기능 완성<br>
+• 댓글 시스템 구현 (작성, 조회, 수정, 삭제)<br>
+• 회원가입 및 로그인 시스템 구현<br>
+• JWT 기반 인증 시스템 구현<br>
+• 비밀번호 기반 게시글 보안 기능 구현<br>
+• RESTful API 설계 및 구현<br>
 • 유효성 검사
 </aside>
 
@@ -32,11 +31,11 @@ Nest.JS로 CRUD, 로그인, 회원가입, 댓글 기능 구현하기
 [](images/API.jpg)
 
 ### 기술 스택 (Tech Stack)
-• **Backend Framework**: NestJS
-• **Database**: MongoDB Atlas (이후 MySQL 변경)
-• **ORM**: TypeORM
-• **Validation**: class-validator, class-transformer
-• **Authentication**: JWT (jsonwebtoken)
+• **Backend Framework**: NestJS<br>
+• **Database**: MongoDB Atlas (이후 MySQL 변경)<br>
+• **ORM**: TypeORM<br>
+• **Validation**: class-validator, class-transformer<br>
+• **Authentication**: JWT (jsonwebtoken)<br>
 • **Language**: TypeScript
 
 ### 아키텍처 설계
@@ -111,27 +110,27 @@ src/
 #### 3. 구현 방식
 
 **DTO (Data Transfer Object) 활용**
-• `SignupDto`: 회원가입 시 유효성 검사 (닉네임, 비밀번호, 비밀번호 확인)
-• `LoginDto`: 로그인 시 유효성 검사 (닉네임, 비밀번호)
-• `CreateBoardDto`: 게시글 생성 시 유효성 검사
-• `UpdateBoardDto`: 게시글 수정 시 유효성 검사
-• `CreateCommentDto`: 댓글 생성 시 유효성 검사
+• `SignupDto`: 회원가입 시 유효성 검사 (닉네임, 비밀번호, 비밀번호 확인)<br>
+• `LoginDto`: 로그인 시 유효성 검사 (닉네임, 비밀번호)<br>
+• `CreateBoardDto`: 게시글 생성 시 유효성 검사<br>
+• `UpdateBoardDto`: 게시글 수정 시 유효성 검사<br>
+• `CreateCommentDto`: 댓글 생성 시 유효성 검사<br>
 • `UpdateCommentDto`: 댓글 수정 시 유효성 검사
 
 **Repository 패턴**
-• TypeORM Repository를 래핑한 커스텀 Repository 클래스 구현
-• 데이터베이스 접근 로직을 Service와 분리
-• 재사용 가능한 데이터베이스 쿼리 메서드 제공
+• TypeORM Repository를 래핑한 커스텀 Repository 클래스 구현<br>
+• 데이터베이스 접근 로직을 Service와 분리<br>
+• 재사용 가능한 데이터베이스 쿼리 메서드 제공<br>
 
 **TypeORM 활용**
-• MongoDB 연결 및 엔티티 매핑
-• 관계 설정 (사용자 ↔ 게시글 ↔ 댓글)
-• 자동 타임스탬프 생성
+• MongoDB 연결 및 엔티티 매핑<br>
+• 관계 설정 (사용자 ↔ 게시글 ↔ 댓글)<br>
+• 자동 타임스탬프 생성<br>
 • 쿼리 빌더를 통한 효율적인 데이터 조회
 
 **JWT 인증 시스템**
-• JWT 토큰 생성 및 검증
-• 쿠키 기반 토큰 전송
+• JWT 토큰 생성 및 검증<br>
+• 쿠키 기반 토큰 전송<br>
 • 인증 가드를 통한 보호된 라우트 구현
 
 #### 4. API 설계
