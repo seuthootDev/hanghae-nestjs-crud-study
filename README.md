@@ -21,10 +21,10 @@ Nest.JS로 CRUD, 로그인, 회원가입, 댓글 기능 구현하기
 ## 계획 (Plan)
 
 ### 유스케이스 (UseCase)
-[](images/UseCase.jpg)
+[](images/UseCase.png)
 
 ### API명세서 (API Specification)
-[](images/API.jpg)
+[](images/API.png)
 
 ### 기술 스택 (Tech Stack)
 • **Backend Framework**: NestJS<br>
