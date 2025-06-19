@@ -138,7 +138,8 @@ src/
 #### 4. API 설계
 
 <details>
-<summary><strong>요구사항항 (클릭하여 펼치기)</strong></summary>
+<summary><strong>요구사항 (클릭하여 펼치기)</strong></summary>
+
 ```
 1. 전체 게시글 목록 조회 API
     - 제목, 작성자명, 작성 날짜를 조회하기
@@ -176,6 +177,7 @@ src/
 - 로그인 버튼을 누른 경우 닉네임과 비밀번호가 데이터베이스에 등록됐는지 확인한 뒤, 하나라도 맞지 않는 정보가 있다면 "닉네임 또는 패스워드를 확인해주세요."라는 에러 메세지를 **response**에 포함하기
 - 로그인 성공 시, 로그인에 성공한 유저의 정보를 JWT를 활용하여 클라이언트에게 Cookie로 전달하기
 ```
+
 </details>
 
 **인증 API**
@@ -201,7 +203,6 @@ POST   /boards/:id/comments # 댓글 작성
 PUT    /comments/:id        # 댓글 수정
 DELETE /comments/:id        # 댓글 삭제
 ```
-
 
 
 
