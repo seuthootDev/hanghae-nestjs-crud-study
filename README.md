@@ -7,7 +7,7 @@ Nest.JS로 CRUD, 로그인, 회원가입, 댓글 기능 구현하기
 ## 목표 (Goals)
 
 - NestJS와 TypeORM을 사용한 게시판 CRUD API 구현
-- MongoDB Atlas를 활용, (이후 MySQL)
+- MongoDB Atlas를 활용
 - 게시글 작성, 조회, 수정, 삭제 기능 완성
 - 댓글 시스템 구현 (작성, 조회, 수정, 삭제)
 - 회원가입 및 로그인 시스템 구현
@@ -26,7 +26,7 @@ Nest.JS로 CRUD, 로그인, 회원가입, 댓글 기능 구현하기
 
 ### 기술 스택 (Tech Stack)
 - **Backend Framework**: NestJS
-- **Database**: MongoDB Atlas (이후 MySQL 변경)
+- **Database**: MongoDB Atlas
 - **ORM**: TypeORM
 - **Validation**: class-validator, class-transformer
 - **Authentication**: JWT (jsonwebtoken)
@@ -207,23 +207,22 @@ DELETE /comments/:id        # 댓글 삭제
 
 #### 5. 보안 및 유효성 검사
 • **회원가입 유효성 검사**
-  - 닉네임: 최소 3자, 알파벳 대소문자 + 숫자만 허용
-  - 비밀번호: 최소 4자, 닉네임 포함 시 실패
-  - 비밀번호 확인: 비밀번호와 일치 확인
+  - 닉네임: 최소 3자 이상, 알파벳 대소문자(a~z, A~Z), 숫자(0~9)
+  - 비밀번호: 최소 4자 이상이며, 닉네임과 같은 값이 포함된 경우 회원가입에 실패
+  - 비밀번호 확인: 비밀번호와 정확하게 일치
   - 닉네임 중복 검사
 
 • **로그인 보안**
-  - 비밀번호 해싱 (bcrypt)
+  - DB에서 닉네임, 비밀번호 확인
   - JWT 토큰 기반 인증
   - 쿠키 기반 토큰 전송
 
-• **게시글 보안**
+<!-- • **게시글 보안**
   - 비밀번호 기반 게시글 수정/삭제 인증
-  - class-validator를 통한 입력 데이터 유효성 검사
+  - class-validator를 통한 입력 데이터 유효성 검사 -->
 
 • **댓글 유효성 검사**
   - 댓글 내용 빈 값 검증
-  - HTTP 상태 코드를 통한 적절한 에러 응답
 
 #### 6. 에러 처리
 - 400 Bad Request: 잘못된 요청 데이터, 유효성 검사 실패
@@ -231,3 +230,73 @@ DELETE /comments/:id        # 댓글 삭제
 - 409 Conflict: 중복된 닉네임
 - 404 Not Found: 리소스를 찾을 수 없음
 - 500 Internal Server Error: 서버 내부 오류
+
+#### 7. 테스트
+
+**Docker Compose 실행**
+```bash
+# 서비스 시작
+docker-compose build
+docker-compose up -d
+```
+
+**API 테스트**
+
+**1. 게시글 API**
+```bash
+# 전체 게시글 목록 조회
+GET http://localhost/boards
+
+# 특정 게시글 조회
+GET http://localhost/boards/:id
+
+# 게시글 작성
+POST http://localhost/boards
+Content-Type: application/json
+
+{
+  "title": "테스트 게시글",
+  "author": "테스트 작성자",
+  "password": "1234",
+  "content": "테스트 내용입니다."
+}
+
+# 게시글 수정
+PUT http://localhost/boards/:id
+Content-Type: application/json
+
+{
+  "title": "수정된 제목",
+  "content": "수정된 내용",
+  "password": "1234"
+}
+
+# 게시글 삭제
+DELETE http://localhost/boards/:id
+Content-Type: application/json
+
+{
+  "password": "1234"
+}
+```
+
+**2. 댓글 API**
+```bash
+# 게시글의 댓글 목록 조회
+
+
+# 댓글 작성
+
+
+# 댓글 수정
+
+
+# 댓글 삭제
+```
+
+**3. 인증 API**
+```bash
+# 회원가입
+
+# 로그아웃
+```
