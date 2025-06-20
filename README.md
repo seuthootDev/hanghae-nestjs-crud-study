@@ -6,7 +6,6 @@ Nest.JS로 CRUD, 로그인, 회원가입, 댓글 기능 구현하기
 
 ## 목표 (Goals)
 
-<aside>
 - NestJS와 TypeORM을 사용한 게시판 CRUD API 구현
 - MongoDB Atlas를 활용, (이후 MySQL)
 - 게시글 작성, 조회, 수정, 삭제 기능 완성
@@ -16,7 +15,6 @@ Nest.JS로 CRUD, 로그인, 회원가입, 댓글 기능 구현하기
 - 비밀번호 기반 게시글 보안 기능 구현
 - RESTful API 설계 및 구현
 - 유효성 검사
-</aside>
 
 ## 계획 (Plan)
 
