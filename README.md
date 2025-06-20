@@ -25,7 +25,7 @@ Nest.JS로 CRUD, 로그인, 회원가입, 댓글 기능 구현하기
 ![유스케이스 다이어그램](images/UseCase.png)
 
 ### API명세서 (API Specification)
-<img src="images/API.png" alt="API 명세서" width="1200" height="2400" style="max-width: 100%; height: auto;">
+![API 명세서](images/API.png)
 
 </details>
 
