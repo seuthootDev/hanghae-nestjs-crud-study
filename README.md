@@ -77,36 +77,20 @@ comments 컬렉션:
 #### 2. 프로젝트 구조
 ```
 src/
-├── dto/                   // DTO
-│   ├── auth/
-│   │   ├── signup.dto.ts
-│   │   └── login.dto.ts
-│   ├── create-board.dto.ts
-│   ├── update-board.dto.ts
-│   ├── create-comment.dto.ts
-│   └── update-comment.dto.ts
-├── entities/              // TypeORM 엔티티
-│   ├── user.entity.ts
+├── board/
 │   ├── board.entity.ts
-│   └── comment.entity.ts
-├── repositories/          // 데이터베이스 접근 계층
-│   ├── user.repository.ts
 │   ├── board.repository.ts
-│   └── comment.repository.ts
-├── services/              // 비즈니스 로직 계층
-│   ├── auth.service.ts
 │   ├── board.service.ts
-│   └── comment.service.ts
-├── controllers/           // API 엔드포인트
-│   ├── auth.controller.ts
 │   ├── board.controller.ts
-│   └── comment.controller.ts
-├── guards/                // 인증 가드
-│   └── jwt-auth.guard.ts
-├── strategies/            // JWT 전략
-│   └── jwt.strategy.ts
-└── configs/               // 설정 파일
-    └── typeorm.config.ts
+│   └── board.module.ts
+├── comment/
+├── auth/
+├── dto/
+│   ├── create-board.dto.ts
+│   └── update-board.dto.ts
+├── configs/
+│   └── typeorm.config.ts
+└── main.ts
 ```
 </details>
 
