@@ -60,6 +60,6 @@ export class BoardService {
    */
   private excludePassword(board: Board): BoardResponseDto {
     const { password, ...boardResponse } = board;
-    return boardResponse as BoardResponseDto;
+    return boardResponse as unknown as BoardResponseDto;
   }
 }

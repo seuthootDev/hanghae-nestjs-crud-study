@@ -1,4 +1,4 @@
-import { Controller, Get, Post, Put, Delete, Body, Param, HttpException, HttpStatus } from '@nestjs/common';
+import { Controller, Get, Post, Patch, Delete, Body, Param, HttpException, HttpStatus } from '@nestjs/common';
 import { BoardService } from './board.service';
 import { CreateBoardDto } from './dto/create-board.dto';
 import { UpdateBoardDto } from './dto/update-board.dto';
@@ -39,7 +39,7 @@ export class BoardController {
   /**
    * 게시글 수정
    */
-  @Put(':id')
+  @Patch(':id')
   async updateBoard(
     @Param('id') id: string,
     @Body() updateBoardDto: UpdateBoardDto & { password: string }

@@ -1,7 +1,7 @@
 import { Injectable } from '@nestjs/common';
 import { Repository } from "typeorm";
 import { InjectRepository } from '@nestjs/typeorm';
-import { Board } from "./board.entity";
+import { Board } from './board.entity';
 import { CreateBoardDto } from './dto/create-board.dto';
 import { UpdateBoardDto } from './dto/update-board.dto';
 import { ObjectId } from 'mongodb';
