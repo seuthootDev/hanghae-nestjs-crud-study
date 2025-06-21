@@ -97,10 +97,13 @@ src/
 #### 3. 구현 방식
 
 **DTO (Data Transfer Object) 활용**
-- `SignupDto`: 회원가입 시 유효성 검사 (닉네임, 비밀번호, 비밀번호 확인)
-- `LoginDto`: 로그인 시 유효성 검사 (닉네임, 비밀번호)
 - `CreateBoardDto`: 게시글 생성 시 유효성 검사
 - `UpdateBoardDto`: 게시글 수정 시 유효성 검사
+- `BoardResponseDto`: 응답 데이터 형식 정의 (비밀번호 제외)
+
+
+- `SignupDto`: 회원가입 시 유효성 검사 (닉네임, 비밀번호, 비밀번호 확인)
+- `LoginDto`: 로그인 시 유효성 검사 (닉네임, 비밀번호)
 - `CreateCommentDto`: 댓글 생성 시 유효성 검사
 - `UpdateCommentDto`: 댓글 수정 시 유효성 검사
 
