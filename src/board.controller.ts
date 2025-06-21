@@ -2,6 +2,7 @@ import { Controller, Get, Post, Put, Delete, Body, Param, HttpException, HttpSta
 import { BoardService } from './board.service';
 import { CreateBoardDto } from './dto/create-board.dto';
 import { UpdateBoardDto } from './dto/update-board.dto';
+import { BoardResponseDto } from './dto/board-response.dto';
 
 @Controller('boards')
 export class BoardController {
@@ -11,7 +12,7 @@ export class BoardController {
    * 전체 게시글 목록 조회
    */
   @Get()
-  async getAllBoards() {
+  async getAllBoards(): Promise<BoardResponseDto[]> {
     return this.boardService.findAll();
   }
 
@@ -19,7 +20,7 @@ export class BoardController {
    * 특정 게시글 조회
    */
   @Get(':id')
-  async getBoard(@Param('id') id: string) {
+  async getBoard(@Param('id') id: string): Promise<BoardResponseDto> {
     const board = await this.boardService.findOne(id);
     if (!board) {
       throw new HttpException('게시글을 찾을 수 없습니다.', HttpStatus.NOT_FOUND);
@@ -31,7 +32,7 @@ export class BoardController {
    * 게시글 작성
    */
   @Post()
-  async createBoard(@Body() createBoardDto: CreateBoardDto) {
+  async createBoard(@Body() createBoardDto: CreateBoardDto): Promise<BoardResponseDto> {
     return this.boardService.createBoard(createBoardDto);
   }
 
@@ -42,7 +43,7 @@ export class BoardController {
   async updateBoard(
     @Param('id') id: string,
     @Body() updateBoardDto: UpdateBoardDto & { password: string }
-  ) {
+  ): Promise<BoardResponseDto> {
     const { password, ...updateData } = updateBoardDto;
     
     // 비밀번호 확인
