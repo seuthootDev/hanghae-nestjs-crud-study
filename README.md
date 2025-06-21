@@ -67,7 +67,8 @@ posts 컬렉션:
 comments 컬렉션:
 {
   _id: ObjectId,
-  postId: ObjectId,        // 게시글 ID (참조)
+  boradId: String,       // 게시글 ID
+  author:  String,         // 작성자명
   content: String,         // 댓글 내용
   createdAt: Date,         // 작성시간
   updatedAt: Date          // 수정시간
@@ -82,12 +83,20 @@ src/
 │   ├── board.repository.ts
 │   ├── board.service.ts
 │   ├── board.controller.ts
-│   └── board.module.ts
+│   └── board.module.ts (AppModule)
 ├── comment/
-├── auth/
+│   ├── comment.entity.ts
+│   ├── comment.repository.ts
+│   ├── comment.service.ts
+│   ├── comment.controller.ts
+│   └── dto/
+│       ├── create-comment.dto.ts
+│       ├── update-comment.dto.ts
+│       └── comment-response.dto.ts
 ├── dto/
 │   ├── create-board.dto.ts
-│   └── update-board.dto.ts
+│   ├── update-board.dto.ts
+│   └── board-response.dto.ts
 ├── configs/
 │   └── typeorm.config.ts
 └── main.ts
@@ -99,13 +108,15 @@ src/
 **DTO (Data Transfer Object) 활용**
 - `CreateBoardDto`: 게시글 생성 시 유효성 검사
 - `UpdateBoardDto`: 게시글 수정 시 유효성 검사
-- `BoardResponseDto`: 응답 데이터 형식 정의 (비밀번호 제외)
+- `BoardResponseDto`: 응답 데이터 형식 정의
 
+- `CreateCommentDto`: 댓글 생성 시 유효성 검사
+- `UpdateCommentDto`: 댓글 수정 시 유효성 검사
+- `comment-response.dto`: 응답 데이터 형식 정의
 
 - `SignupDto`: 회원가입 시 유효성 검사 (닉네임, 비밀번호, 비밀번호 확인)
 - `LoginDto`: 로그인 시 유효성 검사 (닉네임, 비밀번호)
-- `CreateCommentDto`: 댓글 생성 시 유효성 검사
-- `UpdateCommentDto`: 댓글 수정 시 유효성 검사
+
 
 **Repository 패턴**
 - TypeORM Repository를 래핑한 커스텀 Repository 클래스 구현
@@ -183,7 +194,7 @@ POST   /auth/logout         # 로그아웃
 GET    /boards              # 전체 게시글 목록 조회
 GET    /boards/:id          # 특정 게시글 조회
 POST   /boards              # 게시글 작성
-PUT    /boards/:id          # 게시글 수정 (비밀번호 확인)
+PATCH  /boards/:id          # 게시글 수정 (비밀번호 확인)
 DELETE /boards/:id          # 게시글 삭제 (비밀번호 확인)
 ```
 
@@ -191,7 +202,7 @@ DELETE /boards/:id          # 게시글 삭제 (비밀번호 확인)
 ```
 GET    /boards/:id/comments # 게시글의 댓글 목록 조회
 POST   /boards/:id/comments # 댓글 작성
-PUT    /comments/:id        # 댓글 수정
+PATCH  /comments/:id        # 댓글 수정
 DELETE /comments/:id        # 댓글 삭제
 ```
 
@@ -223,17 +234,15 @@ DELETE /comments/:id        # 댓글 삭제
 - 404 Not Found: 리소스를 찾을 수 없음
 - 500 Internal Server Error: 서버 내부 오류
 
-#### 7. 테스트
+<details>
+<summary><strong> 7. 테스트 (클릭하여 펼치기)</strong></summary>
 
 **Docker Compose 실행**
 ```bash
 # 서비스 시작
-docker-compose build
-docker-compose up -d
+docker compose build
+docker compose up -d
 ```
-
-<details>
-<summary><strong>테스트트 (클릭하여 펼치기)</strong></summary>
 
 **1. 게시글 API**
 ```bash
@@ -276,15 +285,26 @@ Content-Type: application/json
 **2. 댓글 API**
 ```bash
 # 게시글의 댓글 목록 조회
-
+GET http://localhost/comments/board/boardId
 
 # 댓글 작성
+POST http://localhost/comments
 
+{
+  "author": "댓글 작성자",
+  "content": "댓글 내용입니다.",
+  "boardId": "boardId"
+}
 
 # 댓글 수정
+PATCH http://localhost/comments/:id
 
+{
+    "content": "수정된 내용"
+}
 
 # 댓글 삭제
+DELETE http://localhost/comments/:id
 ```
 
 **3. 인증 API**
