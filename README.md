@@ -229,7 +229,8 @@ docker-compose build
 docker-compose up -d
 ```
 
-**API 테스트**
+<details>
+<summary><strong>테스트트 (클릭하여 펼치기)</strong></summary>
 
 **1. 게시글 API**
 ```bash
@@ -289,3 +290,5 @@ Content-Type: application/json
 
 # 로그아웃
 ```
+
+</details>
