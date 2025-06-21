@@ -19,15 +19,13 @@ Nest.JS로 CRUD, 로그인, 회원가입, 댓글 기능 구현하기
 ## 계획 (Plan)
 
 <details>
-<summary><strong>유스케이스, API명세서 (클릭하여 펼치기)</strong></summary>
+<summary><strong>유스케이스, API명세서, 기술스택 (클릭하여 펼치기)</strong></summary>
 
 ### 유스케이스 (UseCase)
 ![유스케이스 다이어그램](images/UseCase.png)
 
 ### API명세서 (API Specification)
 ![API 명세서](images/API.png)
-
-</details>
 
 ### 기술 스택 (Tech Stack)
 - **Backend Framework**: NestJS
@@ -36,6 +34,8 @@ Nest.JS로 CRUD, 로그인, 회원가입, 댓글 기능 구현하기
 - **Validation**: class-validator, class-transformer
 - **Authentication**: JWT (jsonwebtoken)
 - **Language**: TypeScript
+
+</details>
 
 ### 아키텍처 설계
 
@@ -112,7 +112,7 @@ src/
 
 - `CreateCommentDto`: 댓글 생성 시 유효성 검사
 - `UpdateCommentDto`: 댓글 수정 시 유효성 검사
-- `comment-response.dto`: 응답 데이터 형식 정의
+- `CommentResponse.dto`: 응답 데이터 형식 정의
 
 - `SignupDto`: 회원가입 시 유효성 검사 (닉네임, 비밀번호, 비밀번호 확인)
 - `LoginDto`: 로그인 시 유효성 검사 (닉네임, 비밀번호)
@@ -200,8 +200,8 @@ DELETE /boards/:id          # 게시글 삭제 (비밀번호 확인)
 
 **댓글 API**
 ```
-GET    /boards/:id/comments # 게시글의 댓글 목록 조회
-POST   /boards/:id/comments # 댓글 작성
+GET    comments/board/:boardId # 게시글의 댓글 목록 조회
+POST   /boards/comments # 댓글 작성
 PATCH  /comments/:id        # 댓글 수정
 DELETE /comments/:id        # 댓글 삭제
 ```
