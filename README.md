@@ -32,7 +32,8 @@ Nest.JS로 CRUD, 로그인, 회원가입, 댓글 기능 구현하기
 - **Database**: MongoDB Atlas
 - **ORM**: TypeORM
 - **Validation**: class-validator, class-transformer
-- **Authentication**: JWT (jsonwebtoken)
+- **Authentication**: JWT (jsonwebtoken), Passport
+- **Password Hashing**: bcrypt
 - **Language**: TypeScript
 
 </details>
@@ -48,7 +49,8 @@ users 컬렉션:
 {
   _id: ObjectId,
   nickname: String,         // 닉네임 (고유값)
-  password: String,         // 암호화된 비밀번호
+  password: String,         // bcrypt로 암호화된 비밀번호
+  name: String,             // 사용자 이름
   createdAt: Date,          // 가입일
   updatedAt: Date           // 수정일
 }
@@ -57,9 +59,9 @@ posts 컬렉션:
 {
   _id: ObjectId,
   title: String,           // 제목
-  author: String,          // 작성자명
-  password: String,        // 비밀번호
   content: String,         // 내용
+  password: String,        // bcrypt로 암호화된 게시글 비밀번호
+  userNickname: String,    // 작성자 닉네임 (JWT에서 추출)
   createdAt: Date,         // 작성시간
   updatedAt: Date          // 수정시간
 }
@@ -67,9 +69,9 @@ posts 컬렉션:
 comments 컬렉션:
 {
   _id: ObjectId,
-  boradId: String,       // 게시글 ID
-  author:  String,         // 작성자명
+  boardId: String,         // 게시글 ID
   content: String,         // 댓글 내용
+  userNickname: String,    // 작성자 닉네임 (JWT에서 추출)
   createdAt: Date,         // 작성시간
   updatedAt: Date          // 수정시간
 }
@@ -78,27 +80,50 @@ comments 컬렉션:
 #### 2. 프로젝트 구조
 ```
 src/
+├── auth/
+│   ├── decorators/
+│   │   └── user.decorator.ts      # JWT에서 사용자 정보 추출
+│   ├── guards/
+│   │   └── jwt-auth.guard.ts     # JWT 인증 가드
+│   └── strategies/
+│       └── jwt.strategy.ts       # JWT 검증 전략
+├── user/
+│   ├── user.entity.ts
+│   ├── user.repository.ts
+│   ├── user.service.ts
+│   ├── user.controller.ts
+│   ├── user.module.ts
+│   ├── dto/
+│   │   ├── signup.dto.ts
+│   │   ├── signin.dto.ts
+│   │   └── user-response.dto.ts
+│   └── validators/
+│       ├── password-validator.ts
+│       └── password-match-validator.ts
 ├── board/
 │   ├── board.entity.ts
 │   ├── board.repository.ts
 │   ├── board.service.ts
 │   ├── board.controller.ts
-│   └── board.module.ts (AppModule)
+│   ├── board.module.ts
+│   └── dto/
+│       ├── create-board.dto.ts
+│       ├── update-board.dto.ts
+│       └── board-response.dto.ts
 ├── comment/
 │   ├── comment.entity.ts
 │   ├── comment.repository.ts
 │   ├── comment.service.ts
 │   ├── comment.controller.ts
+│   ├── comment.module.ts
 │   └── dto/
 │       ├── create-comment.dto.ts
 │       ├── update-comment.dto.ts
 │       └── comment-response.dto.ts
-├── dto/
-│   ├── create-board.dto.ts
-│   ├── update-board.dto.ts
-│   └── board-response.dto.ts
 ├── configs/
+│   ├── jwt.config.ts
 │   └── typeorm.config.ts
+├── app.module.ts
 └── main.ts
 ```
 </details>
@@ -112,11 +137,11 @@ src/
 
 - `CreateCommentDto`: 댓글 생성 시 유효성 검사
 - `UpdateCommentDto`: 댓글 수정 시 유효성 검사
-- `CommentResponse.dto`: 응답 데이터 형식 정의
+- `CommentResponseDto`: 응답 데이터 형식 정의
 
-- `SignupDto`: 회원가입 시 유효성 검사 (닉네임, 비밀번호, 비밀번호 확인)
-- `LoginDto`: 로그인 시 유효성 검사 (닉네임, 비밀번호)
-
+- `SignUpDto`: 회원가입 시 유효성 검사 (닉네임, 비밀번호, 비밀번호 확인)
+- `SignInDto`: 로그인 시 유효성 검사 (닉네임, 비밀번호)
+- `UserResponseDto`: 사용자 응답 데이터 형식 정의
 
 **Repository 패턴**
 - TypeORM Repository를 래핑한 커스텀 Repository 클래스 구현
@@ -131,16 +156,45 @@ src/
 
 **JWT 인증 시스템**
 - JWT 토큰 생성 및 검증
-- 쿠키 기반 토큰 전송
+- Passport.js를 활용한 인증 전략
 - 인증 가드를 통한 보호된 라우트 구현
+- 사용자 데코레이터를 통한 JWT 정보 추출
 
+**이중 보안 시스템**
+- **1단계**: JWT 토큰으로 사용자 본인 확인
+- **2단계**: 게시글 비밀번호로 추가 보안
+- 게시글 수정/삭제 시 두 조건 모두 만족해야 함
 
+**비밀번호 보안**
+- bcrypt를 통한 비밀번호 해시화 (솔트 포함)
+- 사용자 비밀번호와 게시글 비밀번호 모두 해시화
+- 비밀번호 검증 시 bcrypt.compare() 사용
+
+**회원가입 유효성 검사**
+- 닉네임: 최소 3자 이상, 알파벳 대소문자(a~z, A~Z), 숫자(0~9)
+- 비밀번호: 최소 4자 이상이며, 닉네임과 같은 값이 포함된 경우 회원가입에 실패
+- 비밀번호 확인: 비밀번호와 정확하게 일치
+- 닉네임 중복 검사
+
+**로그인 보안**
+- DB에서 닉네임, 비밀번호 확인
+- bcrypt를 통한 비밀번호 검증
+- JWT 토큰 기반 인증
+
+**게시글 보안**
+- JWT 인증 + 비밀번호 기반 게시글 수정/삭제 인증
+- class-validator를 통한 입력 데이터 유효성 검사
+- ObjectId 형식 검증
+
+**댓글 보안**
+- JWT 토큰으로 작성자 본인 확인
+- 댓글 내용 빈 값 검증
+- ObjectId 형식 검증
 
 #### 4. API 설계
 
 <details>
 <summary><strong>요구사항 (클릭하여 펼치기)</strong></summary>
-
 
 ```
 1. 전체 게시글 목록 조회 API
@@ -185,133 +239,125 @@ src/
 **인증 API**
 ```
 POST   /auth/signup         # 회원가입
-POST   /auth/login          # 로그인
-POST   /auth/logout         # 로그아웃
+POST   /auth/signin         # 로그인
 ```
 
 **게시글 API**
 ```
-GET    /boards              # 전체 게시글 목록 조회
-GET    /boards/:id          # 특정 게시글 조회
-POST   /boards              # 게시글 작성
-PATCH  /boards/:id          # 게시글 수정 (비밀번호 확인)
-DELETE /boards/:id          # 게시글 삭제 (비밀번호 확인)
+GET    /board              # 전체 게시글 목록 조회
+GET    /board/:id          # 특정 게시글 조회
+POST   /board              # 게시글 작성 (JWT 인증 필요)
+PATCH  /board/:id          # 게시글 수정 (JWT 인증 + 비밀번호 확인)
+DELETE /board/:id          # 게시글 삭제 (JWT 인증 + 비밀번호 확인)
 ```
 
 **댓글 API**
 ```
-GET    comments/board/:boardId # 게시글의 댓글 목록 조회
-POST   /boards/comments # 댓글 작성
-PATCH  /comments/:id        # 댓글 수정
-DELETE /comments/:id        # 댓글 삭제
+GET    /comments/board/:boardId # 게시글의 댓글 목록 조회
+POST   /comments              # 댓글 작성 (JWT 인증 필요)
+PATCH  /comments/:id          # 댓글 수정 (JWT 인증 필요)
+DELETE /comments/:id          # 댓글 삭제 (JWT 인증 필요)
 ```
 
-
+<details>
+<summary><strong>5. 보안 및 유효성 검사 (클릭하여 펼치기)</strong></summary>
 
 #### 5. 보안 및 유효성 검사
-• **회원가입 유효성 검사**
-  - 닉네임: 최소 3자 이상, 알파벳 대소문자(a~z, A~Z), 숫자(0~9)
-  - 비밀번호: 최소 4자 이상이며, 닉네임과 같은 값이 포함된 경우 회원가입에 실패
-  - 비밀번호 확인: 비밀번호와 정확하게 일치
-  - 닉네임 중복 검사
 
-• **로그인 보안**
-  - DB에서 닉네임, 비밀번호 확인
-  - JWT 토큰 기반 인증
-  - 쿠키 기반 토큰 전송
+**JWT 인증 시스템**
+- JWT 토큰 기반 사용자 인증
+- Passport.js JWT 전략을 통한 토큰 검증
+- 인증 가드를 통한 보호된 라우트 구현
+- 사용자 데코레이터를 통한 JWT 정보 추출
 
-<!-- • **게시글 보안**
-  - 비밀번호 기반 게시글 수정/삭제 인증
-  - class-validator를 통한 입력 데이터 유효성 검사 -->
+**이중 보안 시스템**
+- **1단계**: JWT 토큰으로 사용자 본인 확인
+- **2단계**: 게시글 비밀번호로 추가 보안
+- 게시글 수정/삭제 시 두 조건 모두 만족해야 함
 
-• **댓글 유효성 검사**
-  - 댓글 내용 빈 값 검증
+**비밀번호 보안**
+- bcrypt를 통한 비밀번호 해시화 (솔트 포함)
+- 사용자 비밀번호와 게시글 비밀번호 모두 해시화
+- 비밀번호 검증 시 bcrypt.compare() 사용
+
+**회원가입 유효성 검사**
+- 닉네임: 최소 3자 이상, 알파벳 대소문자(a~z, A~Z), 숫자(0~9)
+- 비밀번호: 최소 4자 이상이며, 닉네임과 같은 값이 포함된 경우 회원가입에 실패
+- 비밀번호 확인: 비밀번호와 정확하게 일치
+- 닉네임 중복 검사
+
+**로그인 보안**
+- DB에서 닉네임, 비밀번호 확인
+- bcrypt를 통한 비밀번호 검증
+- JWT 토큰 기반 인증
+
+**게시글 보안**
+- JWT 인증 + 비밀번호 기반 게시글 수정/삭제 인증
+- class-validator를 통한 입력 데이터 유효성 검사
+- ObjectId 형식 검증
+
+**댓글 보안**
+- JWT 토큰으로 작성자 본인 확인
+- 댓글 내용 빈 값 검증
+- ObjectId 형식 검증
+
+</details>
 
 #### 6. 에러 처리
-- 400 Bad Request: 잘못된 요청 데이터, 유효성 검사 실패
-- 401 Unauthorized: 비밀번호 불일치, 인증 실패
-- 409 Conflict: 중복된 닉네임
+- 400 Bad Request: 잘못된 요청 데이터, 유효성 검사 실패, ObjectId 형식 오류
+- 401 Unauthorized: JWT 인증 실패, 비밀번호 불일치, 권한 없음
 - 404 Not Found: 리소스를 찾을 수 없음
+- 409 Conflict: 중복된 닉네임
 - 500 Internal Server Error: 서버 내부 오류
 
 <details>
-<summary><strong> 7. 테스트 (클릭하여 펼치기)</strong></summary>
+<summary><strong>7. API 응답 예시 (클릭하여 펼치기)</strong></summary>
 
-**Docker Compose 실행**
-```bash
-# 서비스 시작
-docker compose build
-docker compose up -d
-```
-
-**1. 게시글 API**
-```bash
-# 전체 게시글 목록 조회
-GET http://localhost/boards
-
-# 특정 게시글 조회
-GET http://localhost/boards/:id
-
-# 게시글 작성
-POST http://localhost/boards
-Content-Type: application/json
-
+**회원가입 성공:**
+```json
 {
-  "title": "테스트 게시글",
-  "author": "테스트 작성자",
-  "password": "1234",
-  "content": "테스트 내용입니다."
-}
-
-# 게시글 수정
-PUT http://localhost/boards/:id
-Content-Type: application/json
-
-{
-  "title": "수정된 제목",
-  "content": "수정된 내용",
-  "password": "1234"
-}
-
-# 게시글 삭제
-DELETE http://localhost/boards/:id
-Content-Type: application/json
-
-{
-  "password": "1234"
+  "message": "회원가입 성공",
+  "statusCode": 200
 }
 ```
 
-**2. 댓글 API**
-```bash
-# 게시글의 댓글 목록 조회
-GET http://localhost/comments/board/boardId
-
-# 댓글 작성
-POST http://localhost/comments
-
+**로그인 성공:**
+```json
 {
-  "author": "댓글 작성자",
-  "content": "댓글 내용입니다.",
-  "boardId": "boardId"
+  "message": "로그인 성공",
+  "statusCode": 200,
+  "accessToken": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...",
+  "user": {
+    "_id": "685e83429d0cfbee3395373d",
+    "nickname": "test1",
+    "name": "test1"
+  }
 }
-
-# 댓글 수정
-PATCH http://localhost/comments/:id
-
-{
-    "content": "수정된 내용"
-}
-
-# 댓글 삭제
-DELETE http://localhost/comments/:id
 ```
 
-**3. 인증 API**
-```bash
-# 회원가입
-
-# 로그아웃
+**게시글 생성:**
+```json
+{
+  "_id": "685e970c90c1659d296e7c4d",
+  "title": "게시글 제목",
+  "content": "게시글 내용",
+  "userNickname": "test1",
+  "createdAt": "2025-06-27T13:05:16.595Z",
+  "updatedAt": "2025-06-27T13:05:16.595Z"
+}
 ```
+
+**댓글 목록:**
+```json
+[
+  {
+    "_id": "685e9b7935a6f369b8533f53",
+    "content": "댓글 내용",
+    "userNickname": "test1",
+    "boardId": "685e9786b1314d523fb57998",
+    "createdAt": "2025-06-27T13:24:09.945Z",
+    "updatedAt": "2025-06-27T13:24:09.945Z"
+  }
+]
 
 </details>
