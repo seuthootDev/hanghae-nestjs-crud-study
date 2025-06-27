@@ -41,7 +41,7 @@ Nest.JS로 CRUD, 로그인, 회원가입, 댓글 기능 구현하기
 ### 아키텍처 설계
 
 <details>
-<summary><strong>DB 설계, 프로젝트 구조 (클릭하여 펼치기)</strong></summary>
+<summary><strong>1. 데이터베이스 설계 (클릭하여 펼치기)</strong></summary>
 
 #### 1. 데이터베이스 설계
 ```
@@ -76,8 +76,11 @@ comments 컬렉션:
   updatedAt: Date          // 수정시간
 }
 ```
+</details>
 
-#### 2. 프로젝트 구조
+<details>
+<summary><strong>2. 프로젝트 구조 (클릭하여 펼치기)</strong></summary>
+
 ```
 src/
 ├── auth/
@@ -128,7 +131,8 @@ src/
 ```
 </details>
 
-#### 3. 구현 방식
+<details>
+<summary><strong>3. 구현 방식 (클릭하여 펼치기)</strong></summary>
 
 **DTO (Data Transfer Object) 활용**
 - `CreateBoardDto`: 게시글 생성 시 유효성 검사
@@ -191,7 +195,7 @@ src/
 - 댓글 내용 빈 값 검증
 - ObjectId 형식 검증
 
-#### 4. API 설계
+</details>
 
 <details>
 <summary><strong>요구사항 (클릭하여 펼치기)</strong></summary>
@@ -236,6 +240,9 @@ src/
 
 </details>
 
+<details>
+<summary><strong>4. API 설계 (클릭하여 펼치기)</strong></summary>
+
 **인증 API**
 ```
 POST   /auth/signup         # 회원가입
@@ -258,11 +265,10 @@ POST   /comments              # 댓글 작성 (JWT 인증 필요)
 PATCH  /comments/:id          # 댓글 수정 (JWT 인증 필요)
 DELETE /comments/:id          # 댓글 삭제 (JWT 인증 필요)
 ```
+</details>
 
 <details>
 <summary><strong>5. 보안 및 유효성 검사 (클릭하여 펼치기)</strong></summary>
-
-#### 5. 보안 및 유효성 검사
 
 **JWT 인증 시스템**
 - JWT 토큰 기반 사용자 인증
@@ -303,12 +309,17 @@ DELETE /comments/:id          # 댓글 삭제 (JWT 인증 필요)
 
 </details>
 
+<details>
+<summary><strong>6. 에러 처리 (클릭하여 펼치기)</strong></summary>
+
 #### 6. 에러 처리
 - 400 Bad Request: 잘못된 요청 데이터, 유효성 검사 실패, ObjectId 형식 오류
 - 401 Unauthorized: JWT 인증 실패, 비밀번호 불일치, 권한 없음
 - 404 Not Found: 리소스를 찾을 수 없음
 - 409 Conflict: 중복된 닉네임
 - 500 Internal Server Error: 서버 내부 오류
+
+</details>
 
 <details>
 <summary><strong>7. API 응답 예시 (클릭하여 펼치기)</strong></summary>
