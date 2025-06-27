@@ -1,42 +1,86 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, UnauthorizedException, NotFoundException } from '@nestjs/common';
 import { CommentRepository } from './comment.repository';
 import { CreateCommentDto } from './dto/create-comment.dto';
 import { UpdateCommentDto } from './dto/update-comment.dto';
 import { CommentResponseDto } from './dto/comment-response.dto';
+import { Comment } from './comment.entity';
 
 @Injectable()
 export class CommentService {
   constructor(private readonly commentRepository: CommentRepository) {}
 
-  async createComment(createCommentDto: CreateCommentDto): Promise<CommentResponseDto> {
-    return this.commentRepository.createComment(createCommentDto);
+  /**
+   * 특정 게시글의 모든 댓글 조회
+   */
+  async findByBoardId(boardId: string): Promise<CommentResponseDto[]> {
+    const comments = await this.commentRepository.findByBoardId(boardId);
+    return comments.map(comment => this.toResponseDto(comment));
   }
 
-  async findAllByBoardId(boardId: string): Promise<CommentResponseDto[]> {
-    return this.commentRepository.findAllByBoardId(boardId);
-  }
-
+  /**
+   * 특정 댓글 조회
+   */
   async findOne(id: string): Promise<CommentResponseDto | null> {
     const comment = await this.commentRepository.findOne(id);
+    return comment ? this.toResponseDto(comment) : null;
+  }
+
+  /**
+   * 댓글 생성
+   */
+  async createComment(createCommentDto: CreateCommentDto, userNickname: string): Promise<CommentResponseDto> {
+    const comment = await this.commentRepository.createComment(createCommentDto, userNickname);
+    return this.toResponseDto(comment);
+  }
+
+  /**
+   * 댓글 수정 (작성자 확인)
+   */
+  async updateComment(id: string, updateCommentDto: UpdateCommentDto, userNickname: string): Promise<CommentResponseDto | null> {
+    const comment = await this.commentRepository.findOne(id);
+    
     if (!comment) {
-      return null;
+      throw new NotFoundException('댓글을 찾을 수 없습니다.');
     }
 
+    // 작성자 확인
+    if (comment.userNickname !== userNickname) {
+      throw new UnauthorizedException('댓글을 수정할 권한이 없습니다.');
+    }
+
+    const updatedComment = await this.commentRepository.updateComment(id, updateCommentDto);
+    return updatedComment ? this.toResponseDto(updatedComment) : null;
+  }
+
+  /**
+   * 댓글 삭제 (작성자 확인)
+   */
+  async deleteComment(id: string, userNickname: string) {
+    const comment = await this.commentRepository.findOne(id);
+    
+    if (!comment) {
+      throw new NotFoundException('댓글을 찾을 수 없습니다.');
+    }
+
+    // 작성자 확인
+    if (comment.userNickname !== userNickname) {
+      throw new UnauthorizedException('댓글을 삭제할 권한이 없습니다.');
+    }
+
+    return this.commentRepository.deleteComment(id);
+  }
+
+  /**
+   * 응답 DTO로 변환
+   */
+  private toResponseDto(comment: Comment): CommentResponseDto {
     return {
-      id: comment._id.toString(),
+      _id: comment._id,
       content: comment.content,
-      author: comment.author,
+      userNickname: comment.userNickname,
       boardId: comment.boardId,
       createdAt: comment.createdAt,
       updatedAt: comment.updatedAt,
     };
-  }
-
-  async updateComment(id: string, updateCommentDto: UpdateCommentDto): Promise<CommentResponseDto | null> {
-    return this.commentRepository.updateComment(id, updateCommentDto);
-  }
-
-  async deleteComment(id: string): Promise<{ affected: number }> {
-    return this.commentRepository.deleteComment(id);
   }
 } 

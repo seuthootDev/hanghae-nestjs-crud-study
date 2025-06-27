@@ -7,10 +7,10 @@ export class Comment {
   _id: ObjectId;
 
   @Column()
-  author: string;
+  content: string;
 
   @Column()
-  content: string;
+  userNickname: string;
 
   @Column()
   boardId: string;

@@ -17,22 +17,25 @@ export class CommentRepository {
   /**
    * 댓글 생성
    * @param createCommentDto 댓글 생성 데이터
+   * @param userNickname 사용자 닉네임
    * @returns 생성된 댓글 정보
    */
-  async createComment(createCommentDto: CreateCommentDto): Promise<CommentResponseDto> {
+  async createComment(createCommentDto: CreateCommentDto, userNickname: string): Promise<CommentResponseDto> {
     const comment = this.commentRepository.create({
-      author: createCommentDto.author,
       content: createCommentDto.content,
       boardId: createCommentDto.boardId,
+      userNickname: userNickname,
+      createdAt: new Date(),
+      updatedAt: new Date(),
     });
     
     const savedComment = await this.commentRepository.save(comment);
     
     return {
-      id: savedComment._id.toString(),
+      _id: savedComment._id,
       content: savedComment.content,
-      author: savedComment.author,
       boardId: savedComment.boardId,
+      userNickname: savedComment.userNickname,
       createdAt: savedComment.createdAt,
       updatedAt: savedComment.updatedAt,
     };
@@ -41,22 +44,13 @@ export class CommentRepository {
   /**
    * 특정 게시글의 모든 댓글 조회
    * @param boardId 게시글 ID
-   * @returns 댓글 목록 (작성 시간 순)
+   * @returns 댓글 목록 내림차순(최신작성순)
    */
-  async findAllByBoardId(boardId: string): Promise<CommentResponseDto[]> {
-    const comments = await this.commentRepository.find({
+  async findByBoardId(boardId: string): Promise<Comment[]> {
+    return this.commentRepository.find({
       where: { boardId },
-      order: { createdAt: 'ASC' },
+      order: { createdAt: 'DESC' },
     });
-
-    return comments.map(comment => ({
-      id: comment._id.toString(),
-      content: comment.content,
-      author: comment.author,
-      boardId: comment.boardId,
-      createdAt: comment.createdAt,
-      updatedAt: comment.updatedAt,
-    }));
   }
 
   /**
@@ -88,10 +82,10 @@ export class CommentRepository {
     const updatedComment = await this.commentRepository.save(comment);
 
     return {
-      id: updatedComment._id.toString(),
+      _id: updatedComment._id,
       content: updatedComment.content,
-      author: updatedComment.author,
       boardId: updatedComment.boardId,
+      userNickname: updatedComment.userNickname,
       createdAt: updatedComment.createdAt,
       updatedAt: updatedComment.updatedAt,
     };

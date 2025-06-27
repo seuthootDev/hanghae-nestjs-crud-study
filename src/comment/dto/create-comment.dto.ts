@@ -7,9 +7,5 @@ export class CreateCommentDto {
 
   @IsString()
   @IsNotEmpty()
-  author: string;
-
-  @IsString()
-  @IsNotEmpty()
   boardId: string;
 } 

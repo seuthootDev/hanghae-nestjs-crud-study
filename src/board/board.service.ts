@@ -1,4 +1,4 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, UnauthorizedException, NotFoundException } from '@nestjs/common';
 import { CreateBoardDto } from './dto/create-board.dto';
 import { UpdateBoardDto } from './dto/update-board.dto';
 import { BoardResponseDto } from './dto/board-response.dto';
@@ -14,7 +14,7 @@ export class BoardService {
    */
   async findAll(): Promise<BoardResponseDto[]> {
     const boards = await this.boardRepository.findAll();
-    return boards.map(board => this.excludePassword(board));
+    return boards.map(board => this.toResponseDto(board));
   }
 
   /**
@@ -22,44 +22,77 @@ export class BoardService {
    */
   async findOne(id: string): Promise<BoardResponseDto | null> {
     const board = await this.boardRepository.findOne(id);
-    return board ? this.excludePassword(board) : null;
+    return board ? this.toResponseDto(board) : null;
   }
 
   /**
    * 게시글 생성
    */
-  async createBoard(createBoardDto: CreateBoardDto): Promise<BoardResponseDto> {
-    const board = await this.boardRepository.createBoard(createBoardDto);
-    return this.excludePassword(board);
+  async createBoard(createBoardDto: CreateBoardDto, userNickname: string): Promise<BoardResponseDto> {
+    const board = await this.boardRepository.createBoard(createBoardDto, userNickname);
+    return this.toResponseDto(board);
   }
 
   /**
-   * 게시글 수정
+   * 게시글 수정 (JWT 인증 + 비밀번호 확인)
    */
-  async updateBoard(id: string, updateBoardDto: UpdateBoardDto): Promise<BoardResponseDto | null> {
-    const board = await this.boardRepository.updateBoard(id, updateBoardDto);
-    return board ? this.excludePassword(board) : null;
+  async updateBoard(id: string, updateBoardDto: UpdateBoardDto, userNickname: string, password: string): Promise<BoardResponseDto | null> {
+    const board = await this.boardRepository.findOne(id);
+    
+    if (!board) {
+      throw new NotFoundException('게시글을 찾을 수 없습니다.');
+    }
+
+    // 1단계: JWT 인증 확인 (작성자 확인)
+    if (board.userNickname !== userNickname) {
+      throw new UnauthorizedException('게시글을 수정할 권한이 없습니다.');
+    }
+
+    // 2단계: 비밀번호 확인
+    const isPasswordValid = await this.boardRepository.verifyPassword(id, password);
+    if (!isPasswordValid) {
+      throw new UnauthorizedException('비밀번호가 일치하지 않습니다.');
+    }
+
+    const updatedBoard = await this.boardRepository.updateBoard(id, updateBoardDto);
+    return updatedBoard ? this.toResponseDto(updatedBoard) : null;
   }
 
   /**
-   * 게시글 삭제
+   * 게시글 삭제 (JWT 인증 + 비밀번호 확인)
    */
-  async deleteBoard(id: string) {
+  async deleteBoard(id: string, userNickname: string, password: string) {
+    const board = await this.boardRepository.findOne(id);
+    
+    if (!board) {
+      throw new NotFoundException('게시글을 찾을 수 없습니다.');
+    }
+
+    // 1단계: JWT 인증 확인 (작성자 확인)
+    if (board.userNickname !== userNickname) {
+      throw new UnauthorizedException('게시글을 삭제할 권한이 없습니다.');
+    }
+
+    // 2단계: 비밀번호 확인
+    const isPasswordValid = await this.boardRepository.verifyPassword(id, password);
+    if (!isPasswordValid) {
+      throw new UnauthorizedException('비밀번호가 일치하지 않습니다.');
+    }
+
     return this.boardRepository.deleteBoard(id);
   }
 
   /**
-   * 비밀번호 확인
+   * 응답 DTO로 변환
    */
-  async verifyPassword(id: string, password: string): Promise<boolean> {
-    return this.boardRepository.verifyPassword(id, password);
-  }
-
-  /**
-   * 비밀번호 필드를 제외한 응답 데이터 생성
-   */
-  private excludePassword(board: Board): BoardResponseDto {
-    const { password, ...boardResponse } = board;
-    return boardResponse as unknown as BoardResponseDto;
+  private toResponseDto(board: Board): BoardResponseDto {
+    return {
+      _id: board._id,
+      title: board.title,
+      content: board.content,
+      userNickname: board.userNickname,
+      createdAt: board.createdAt,
+      updatedAt: board.updatedAt,
+    };
   }
 }

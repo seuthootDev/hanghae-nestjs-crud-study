@@ -1,8 +1,10 @@
+import { ObjectId } from 'mongodb';
+
 export class BoardResponseDto {
-    _id: string;
+    _id: ObjectId;
     title: string;
-    author: string;
     content: string;
+    userNickname: string;
     createdAt: Date;
     updatedAt: Date;
 } 

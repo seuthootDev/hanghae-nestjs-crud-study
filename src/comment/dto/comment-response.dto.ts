@@ -1,7 +1,9 @@
+import { ObjectId } from 'mongodb';
+
 export class CommentResponseDto {
-  id: string;
+  _id: ObjectId;
   content: string;
-  author: string;
+  userNickname: string;
   boardId: string;
   createdAt: Date;
   updatedAt: Date;

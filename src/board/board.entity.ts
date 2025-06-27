@@ -1,4 +1,4 @@
-import { Entity, ObjectIdColumn, Column } from "typeorm";
+import { Entity, ObjectIdColumn, Column, CreateDateColumn, UpdateDateColumn } from "typeorm";
 import { ObjectId } from "mongodb";
 
 @Entity('posts')
@@ -10,17 +10,17 @@ export class Board {
     title: string;
 
     @Column()
-    author: string;
+    content: string;
 
     @Column()
     password: string;
 
     @Column()
-    content: string;
+    userNickname: string;
 
-    @Column()
+    @CreateDateColumn()
     createdAt: Date;
 
-    @Column()
+    @UpdateDateColumn()
     updatedAt: Date;
 }

@@ -1,8 +1,10 @@
-import { Controller, Get, Post, Patch, Delete, Body, Param, HttpException, HttpStatus } from '@nestjs/common';
+import { Controller, Get, Post, Patch, Delete, Body, Param, UseGuards, Request } from '@nestjs/common';
 import { BoardService } from './board.service';
 import { CreateBoardDto } from './dto/create-board.dto';
 import { UpdateBoardDto } from './dto/update-board.dto';
 import { BoardResponseDto } from './dto/board-response.dto';
+import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
+import { User } from '../auth/decorators/user.decorator';
 
 @Controller('boards')
 export class BoardController {
@@ -23,7 +25,7 @@ export class BoardController {
   async getBoard(@Param('id') id: string): Promise<BoardResponseDto> {
     const board = await this.boardService.findOne(id);
     if (!board) {
-      throw new HttpException('게시글을 찾을 수 없습니다.', HttpStatus.NOT_FOUND);
+      throw new Error('게시글을 찾을 수 없습니다.');
     }
     return board;
   }
@@ -31,30 +33,32 @@ export class BoardController {
   /**
    * 게시글 작성
    */
+  @UseGuards(JwtAuthGuard)
   @Post()
-  async createBoard(@Body() createBoardDto: CreateBoardDto): Promise<BoardResponseDto> {
-    return this.boardService.createBoard(createBoardDto);
+  async createBoard(
+    @Body() createBoardDto: CreateBoardDto,
+    @User('nickname') userNickname: string
+  ): Promise<BoardResponseDto> {
+    return this.boardService.createBoard(createBoardDto, userNickname);
   }
 
   /**
    * 게시글 수정
    */
+  @UseGuards(JwtAuthGuard)
   @Patch(':id')
   async updateBoard(
     @Param('id') id: string,
-    @Body() updateBoardDto: UpdateBoardDto & { password: string }
+    @Body() updateBoardDto: UpdateBoardDto,
+    @User('nickname') userNickname: string
   ): Promise<BoardResponseDto> {
     const { password, ...updateData } = updateBoardDto;
-    
-    // 비밀번호 확인
-    const isPasswordValid = await this.boardService.verifyPassword(id, password);
-    if (!isPasswordValid) {
-      throw new HttpException('비밀번호가 일치하지 않습니다.', HttpStatus.UNAUTHORIZED);
+    if (!password) {
+      throw new Error('비밀번호는 필수입니다.');
     }
-
-    const updatedBoard = await this.boardService.updateBoard(id, updateData);
+    const updatedBoard = await this.boardService.updateBoard(id, updateData, userNickname, password);
     if (!updatedBoard) {
-      throw new HttpException('게시글을 찾을 수 없습니다.', HttpStatus.NOT_FOUND);
+      throw new Error('게시글을 찾을 수 없습니다.');
     }
     
     return updatedBoard;
@@ -63,21 +67,17 @@ export class BoardController {
   /**
    * 게시글 삭제
    */
+  @UseGuards(JwtAuthGuard)
   @Delete(':id')
   async deleteBoard(
     @Param('id') id: string,
-    @Body() body: { password: string }
+    @Body() body: { password: string },
+    @User('nickname') userNickname: string
   ) {
-    // 비밀번호 확인
-    const isPasswordValid = await this.boardService.verifyPassword(id, body.password);
-    if (!isPasswordValid) {
-      throw new HttpException('비밀번호가 일치하지 않습니다.', HttpStatus.UNAUTHORIZED);
+    if (!body.password) {
+      throw new Error('비밀번호는 필수입니다.');
     }
-
-    const result = await this.boardService.deleteBoard(id);
-    if (result.affected === 0) {
-      throw new HttpException('게시글을 찾을 수 없습니다.', HttpStatus.NOT_FOUND);
-    }
+    await this.boardService.deleteBoard(id, userNickname, body.password);
     
     return { message: '게시글이 삭제되었습니다.' };
   }
