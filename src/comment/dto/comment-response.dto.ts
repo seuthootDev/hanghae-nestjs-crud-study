@@ -3,7 +3,7 @@ import { ObjectId } from 'mongodb';
 export class CommentResponseDto {
   _id: ObjectId;
   content: string;
-  userId: string;
+  userNickname: string;
   boardId: string;
   createdAt: Date;
   updatedAt: Date;

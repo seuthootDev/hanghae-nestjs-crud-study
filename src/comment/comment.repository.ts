@@ -6,21 +6,23 @@ import { Comment } from './comment.entity';
 import { CreateCommentDto } from './dto/create-comment.dto';
 import { UpdateCommentDto } from './dto/update-comment.dto';
 import { CommentResponseDto } from './dto/comment-response.dto';
+import { UserRepository } from '../user/user.repository';
 
 @Injectable()
 export class CommentRepository {
   constructor(
     @InjectRepository(Comment)
     private readonly commentRepository: Repository<Comment>,
+    private userRepository: UserRepository,
   ) {}
 
   /**
    * 댓글 생성
    * @param createCommentDto 댓글 생성 데이터
-   * @param userId 사용자 닉네임
-   * @returns 생성된 댓글 정보
+   * @param userId 사용자 ID
+   * @returns 생성된 댓글 엔티티
    */
-  async createComment(createCommentDto: CreateCommentDto, userId: string): Promise<CommentResponseDto> {
+  async createComment(createCommentDto: CreateCommentDto, userId: string): Promise<Comment> {
     const comment = this.commentRepository.create({
       content: createCommentDto.content,
       boardId: createCommentDto.boardId,
@@ -29,16 +31,7 @@ export class CommentRepository {
       updatedAt: new Date(),
     });
     
-    const savedComment = await this.commentRepository.save(comment);
-    
-    return {
-      _id: savedComment._id,
-      content: savedComment.content,
-      boardId: savedComment.boardId,
-      userId: savedComment.userId,
-      createdAt: savedComment.createdAt,
-      updatedAt: savedComment.updatedAt,
-    };
+    return await this.commentRepository.save(comment);
   }
 
   /**
@@ -66,9 +59,9 @@ export class CommentRepository {
    * 댓글 수정
    * @param id 댓글 ID
    * @param updateCommentDto 수정할 데이터
-   * @returns 수정된 댓글 정보 또는 null
+   * @returns 수정된 댓글 엔티티 또는 null
    */
-  async updateComment(id: string, updateCommentDto: UpdateCommentDto): Promise<CommentResponseDto | null> {
+  async updateComment(id: string, updateCommentDto: UpdateCommentDto): Promise<Comment | null> {
     const comment = await this.findOne(id);
     if (!comment) {
       return null;
@@ -79,16 +72,7 @@ export class CommentRepository {
       comment.content = updateCommentDto.content;
     }
 
-    const updatedComment = await this.commentRepository.save(comment);
-
-    return {
-      _id: updatedComment._id,
-      content: updatedComment.content,
-      boardId: updatedComment.boardId,
-      userId: updatedComment.userId,
-      createdAt: updatedComment.createdAt,
-      updatedAt: updatedComment.updatedAt,
-    };
+    return await this.commentRepository.save(comment);
   }
 
   /**
@@ -99,5 +83,15 @@ export class CommentRepository {
   async deleteComment(id: string): Promise<{ affected: number }> {
     const result = await this.commentRepository.delete(new ObjectId(id));
     return { affected: result.affected || 0 };
+  }
+
+  /**
+   * 사용자 ID로 닉네임 조회
+   * @param userId - 사용자 ID
+   * @returns 사용자 닉네임 또는 null
+   */
+  async getUserNicknameById(userId: string): Promise<string | null> {
+    const user = await this.userRepository.findUserById(userId);
+    return user ? user.userNickname : null;
   }
 } 

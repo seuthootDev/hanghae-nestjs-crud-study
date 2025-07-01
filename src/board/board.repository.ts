@@ -6,13 +6,15 @@ import { CreateBoardDto } from './dto/create-board.dto';
 import { UpdateBoardDto } from './dto/update-board.dto';
 import { ObjectId } from 'mongodb';
 import { PasswordService } from '../auth/password.service';
+import { UserRepository } from '../user/user.repository';
 
 @Injectable()
 export class BoardRepository {
     constructor(
         @InjectRepository(Board)
         private boardRepository: Repository<Board>,
-        private passwordService: PasswordService
+        private passwordService: PasswordService,
+        private userRepository: UserRepository
     ) {}
 
     /**
@@ -97,5 +99,15 @@ export class BoardRepository {
         if (!board) return false;
         
         return this.passwordService.validatePassword(password, board.password);
+    }
+
+    /**
+     * 사용자 ID로 닉네임 조회
+     * @param userId - 사용자 ID
+     * @returns 사용자 닉네임 또는 null
+     */
+    async getUserNicknameById(userId: string): Promise<string | null> {
+        const user = await this.userRepository.findUserById(userId);
+        return user ? user.userNickname : null;
     }
 } 

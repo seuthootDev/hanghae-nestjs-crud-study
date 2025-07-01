@@ -84,13 +84,13 @@ export class CommentController {
   async updateComment(
     @Param('id') id: string,
     @Body() updateCommentDto: UpdateCommentDto,
-    @User('nickname') userNickname: string
+    @User('_id') userId: string
   ): Promise<CommentResponseDto> {
     if (!this.isValidObjectId(id)) {
       throw new BadRequestException('올바르지 않은 댓글 ID 형식입니다.');
     }
     
-    const updatedComment = await this.commentService.updateComment(id, updateCommentDto, userNickname);
+    const updatedComment = await this.commentService.updateComment(id, updateCommentDto, userId);
     if (!updatedComment) {
       throw new NotFoundException('댓글을 찾을 수 없습니다.');
     }
@@ -105,13 +105,13 @@ export class CommentController {
   @Delete(':id')
   async deleteComment(
     @Param('id') id: string,
-    @User('nickname') userNickname: string
+    @User('_id') userId: string
   ) {
     if (!this.isValidObjectId(id)) {
       throw new BadRequestException('올바르지 않은 댓글 ID 형식입니다.');
     }
     
-    await this.commentService.deleteComment(id, userNickname);
+    await this.commentService.deleteComment(id, userId);
     
     return { message: '댓글이 삭제되었습니다.' };
   }

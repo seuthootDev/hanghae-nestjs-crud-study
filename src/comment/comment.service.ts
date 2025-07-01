@@ -14,7 +14,8 @@ export class CommentService {
    */
   async findByBoardId(boardId: string): Promise<CommentResponseDto[]> {
     const comments = await this.commentRepository.findByBoardId(boardId);
-    return comments.map(comment => this.toResponseDto(comment));
+    const responseDtos = await Promise.all(comments.map(comment => this.toResponseDto(comment)));
+    return responseDtos;
   }
 
   /**
@@ -22,15 +23,15 @@ export class CommentService {
    */
   async findOne(id: string): Promise<CommentResponseDto | null> {
     const comment = await this.commentRepository.findOne(id);
-    return comment ? this.toResponseDto(comment) : null;
+    return comment ? await this.toResponseDto(comment) : null;
   }
 
   /**
    * 댓글 생성
    */
-  async createComment(createCommentDto: CreateCommentDto, userNickname: string): Promise<CommentResponseDto> {
-    const comment = await this.commentRepository.createComment(createCommentDto, userNickname);
-    return this.toResponseDto(comment);
+  async createComment(createCommentDto: CreateCommentDto, userId: string): Promise<CommentResponseDto> {
+    const comment = await this.commentRepository.createComment(createCommentDto, userId);
+    return await this.toResponseDto(comment);
   }
 
   /**
@@ -49,7 +50,7 @@ export class CommentService {
     }
 
     const updatedComment = await this.commentRepository.updateComment(id, updateCommentDto);
-    return updatedComment ? this.toResponseDto(updatedComment) : null;
+    return updatedComment ? await this.toResponseDto(updatedComment) : null;
   }
 
   /**
@@ -73,11 +74,13 @@ export class CommentService {
   /**
    * 응답 DTO로 변환
    */
-  private toResponseDto(comment: Comment): CommentResponseDto {
+  private async toResponseDto(comment: Comment): Promise<CommentResponseDto> {
+    const userNickname = await this.commentRepository.getUserNicknameById(comment.userId);
+    
     return {
       _id: comment._id,
       content: comment.content,
-      userId: comment.userId,
+      userNickname: userNickname || '알 수 없는 사용자',
       boardId: comment.boardId,
       createdAt: comment.createdAt,
       updatedAt: comment.updatedAt,

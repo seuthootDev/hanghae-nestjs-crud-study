@@ -57,4 +57,15 @@ export class UserRepository {
       updatedAt: savedUser.updatedAt,
     };
   }
+
+  /**
+   * ID로 사용자 찾기 (User 엔티티 반환)
+   * @param id 사용자 ID
+   * @returns 사용자 엔티티 또는 null
+   */
+  async findUserById(id: string): Promise<User | null> {
+    return this.userRepository.findOne({
+      where: { _id: new ObjectId(id) },
+    });
+  }
 } 

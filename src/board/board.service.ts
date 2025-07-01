@@ -14,7 +14,8 @@ export class BoardService {
    */
   async findAll(): Promise<BoardResponseDto[]> {
     const boards = await this.boardRepository.findAll();
-    return boards.map(board => this.toResponseDto(board));
+    const responseDtos = await Promise.all(boards.map(board => this.toResponseDto(board)));
+    return responseDtos;
   }
 
   /**
@@ -22,7 +23,7 @@ export class BoardService {
    */
   async findOne(id: string): Promise<BoardResponseDto | null> {
     const board = await this.boardRepository.findOne(id);
-    return board ? this.toResponseDto(board) : null;
+    return board ? await this.toResponseDto(board) : null;
   }
 
   /**
@@ -30,7 +31,7 @@ export class BoardService {
    */
   async createBoard(createBoardDto: CreateBoardDto, userId: string): Promise<BoardResponseDto> {
     const board = await this.boardRepository.createBoard(createBoardDto, userId);
-    return this.toResponseDto(board);
+    return await this.toResponseDto(board);
   }
 
   /**
@@ -55,7 +56,7 @@ export class BoardService {
     }
 
     const updatedBoard = await this.boardRepository.updateBoard(id, updateBoardDto);
-    return updatedBoard ? this.toResponseDto(updatedBoard) : null;
+    return updatedBoard ? await this.toResponseDto(updatedBoard) : null;
   }
 
   /**
@@ -85,12 +86,14 @@ export class BoardService {
   /**
    * 응답 DTO로 변환
    */
-  private toResponseDto(board: Board): BoardResponseDto {
+  private async toResponseDto(board: Board): Promise<BoardResponseDto> {
+    const userNickname = await this.boardRepository.getUserNicknameById(board.userId);
+    
     return {
       _id: board._id,
       title: board.title,
       content: board.content,
-      userId: board.userId,
+      userNickname: userNickname || '알 수 없는 사용자',
       createdAt: board.createdAt,
       updatedAt: board.updatedAt,
     };
