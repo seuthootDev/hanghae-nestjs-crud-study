@@ -58,7 +58,7 @@ posts 컬렉션:
   title: String,           // 제목
   content: String,         // 내용
   password: String,        // bcrypt로 암호화된 게시글 비밀번호
-  userNickname: String,    // 작성자 닉네임 (JWT에서 추출)
+  userId: String,          // 작성자 ID (JWT에서 추출)
   createdAt: Date,         // 작성시간
   updatedAt: Date          // 수정시간
 }
@@ -68,7 +68,7 @@ comments 컬렉션:
   _id: ObjectId,
   boardId: String,         // 게시글 ID
   content: String,         // 댓글 내용
-  userNickname: String,    // 작성자 닉네임 (JWT에서 추출)
+  userId: String,          // 작성자 ID (JWT에서 추출)
   createdAt: Date,         // 작성시간
   updatedAt: Date          // 수정시간
 }
@@ -134,11 +134,11 @@ src/
 **DTO (Data Transfer Object) 활용**
 - `CreateBoardDto`: 게시글 생성 시 유효성 검사
 - `UpdateBoardDto`: 게시글 수정 시 유효성 검사
-- `BoardResponseDto`: 응답 데이터 형식 정의
+- `BoardResponseDto`: 응답 데이터 형식 정의 (userNickname 포함)
 
 - `CreateCommentDto`: 댓글 생성 시 유효성 검사
 - `UpdateCommentDto`: 댓글 수정 시 유효성 검사
-- `CommentResponseDto`: 응답 데이터 형식 정의
+- `CommentResponseDto`: 응답 데이터 형식 정의 (userNickname 포함)
 
 - `SignUpDto`: 회원가입 시 유효성 검사 (닉네임, 비밀번호, 비밀번호 확인)
 - `SignInDto`: 로그인 시 유효성 검사 (닉네임, 비밀번호)
@@ -338,7 +338,9 @@ DELETE /comments/:id          # 댓글 삭제 (JWT 인증 필요)
   "user": {
     "_id": "685e83429d0cfbee3395373d",
     "nickname": "test1",
-    "name": "test1"
+    "name": "test1",
+    "createdAt": "2025-07-01T12:04:29.821Z",
+    "updatedAt": "2025-07-01T12:04:29.821Z"
   }
 }
 ```
@@ -375,10 +377,10 @@ DELETE /comments/:id          # 댓글 삭제 (JWT 인증 필요)
 | 단계 | 기능 | 상태 | 완료일 | 비고 |
 |------|------|------|--------|------|
 | 1 | 프로젝트 초기 설정 | ✅ 완료 | 2025-06-19 | NestJS, TypeORM, MongoDB 설정 |
-| 2 | API 문서화 | 🔄 진행중 | 2025-06-20 | README.md 업데이트 |
+| 2 | API 문서화 | ✅ 진행중 | 2025-06-20 | README.md 업데이트 |
 | 3 | UseCase 문서화 | ✅ 완료 | 2025-06-20 | README.md 업데이트 |
 | 4 | 게시글 CRUD | ✅ 완료 | 2025-06-21 | 생성, 조회, 수정, 삭제 |
 | 5 | 댓글 시스템 | ✅ 완료 | 2025-06-22 | 생성, 조회, 수정, 삭제 |
-| 6 | 사용자 인증 시스템 | 🔄 진행중 | 2025-06-27 | 회원가입, 로그인, JWT 인증 |
-| 7 | 테스트 | ⏳ 예정 | - | Jest |
+| 6 | 사용자 인증 시스템 | ✅ 완료 | 2025-07-01 | 회원가입, 로그인, JWT 인증 |
+| 7 | 테스트 | 🔄 진행중 | 2025-07-01 | Jest |
 | 8 | 배포 | ⏳ 예정 | - | Docker, AWS 배포 |
