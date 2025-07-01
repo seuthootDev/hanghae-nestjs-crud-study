@@ -5,12 +5,14 @@ import { UserRepository } from './user.repository';
 import { SignUpDto } from './dto/signup.dto';
 import { SignInDto } from './dto/signin.dto';
 import { UserResponseDto } from './dto/user-response.dto';
+import { PasswordService } from '../auth/password.service';
 
 @Injectable()
 export class UserService {
   constructor(
     private userRepository: UserRepository,
     private jwtService: JwtService,
+    private passwordService: PasswordService,
   ) {}
 
   async signUp(signUpDto: SignUpDto): Promise<UserResponseDto> {
@@ -29,7 +31,7 @@ export class UserService {
     user.name = name;
     
     // 비밀번호 해시화
-    await user.hashPassword(password);
+    user.password = await this.passwordService.hashPassword(password);
     
     // 사용자 저장 (Repository에서 UserResponseDto 반환)
     return this.userRepository.createUser(user);
@@ -45,8 +47,8 @@ export class UserService {
       throw new UnauthorizedException('닉네임 또는 비밀번호가 잘못되었습니다.');
     }
 
-    // 비밀번호 검증 (엔티티 메서드 사용)
-    const isPasswordValid = await user.validatePassword(password);
+    // 비밀번호 검증
+    const isPasswordValid = await this.passwordService.validatePassword(password, user.password);
 
     if (!isPasswordValid) {
       throw new UnauthorizedException('닉네임 또는 비밀번호가 잘못되었습니다.');

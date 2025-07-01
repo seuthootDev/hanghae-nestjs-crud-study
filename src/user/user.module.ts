@@ -10,6 +10,7 @@ import { JwtStrategy } from '../auth/strategies/jwt.strategy';
 import { jwtConfig } from '../configs/jwt.config';
 import { IsPasswordNotContainNickname } from './validators/password-validator';
 import { IsPasswordMatch } from './validators/password-match-validator';
+import { PasswordService } from '../auth/password.service';
 
 @Module({
   imports: [
@@ -23,7 +24,8 @@ import { IsPasswordMatch } from './validators/password-match-validator';
     UserRepository, 
     JwtStrategy, 
     IsPasswordNotContainNickname,
-    IsPasswordMatch
+    IsPasswordMatch,
+    PasswordService
   ],
   exports: [UserService],
 })
