@@ -1,5 +1,5 @@
 export class UserResponseDto {
-  nickname: string;
+  userNickname: string;
   name: string;
   createdAt: Date;
   updatedAt: Date;

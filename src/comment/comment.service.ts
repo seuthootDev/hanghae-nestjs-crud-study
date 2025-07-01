@@ -36,7 +36,7 @@ export class CommentService {
   /**
    * 댓글 수정 (작성자 확인)
    */
-  async updateComment(id: string, updateCommentDto: UpdateCommentDto, userNickname: string): Promise<CommentResponseDto | null> {
+  async updateComment(id: string, updateCommentDto: UpdateCommentDto, userId: string): Promise<CommentResponseDto | null> {
     const comment = await this.commentRepository.findOne(id);
     
     if (!comment) {
@@ -44,7 +44,7 @@ export class CommentService {
     }
 
     // 작성자 확인
-    if (comment.userNickname !== userNickname) {
+    if (comment.userId !== userId) {
       throw new UnauthorizedException('댓글을 수정할 권한이 없습니다.');
     }
 
@@ -55,7 +55,7 @@ export class CommentService {
   /**
    * 댓글 삭제 (작성자 확인)
    */
-  async deleteComment(id: string, userNickname: string) {
+  async deleteComment(id: string, userId: string) {
     const comment = await this.commentRepository.findOne(id);
     
     if (!comment) {
@@ -63,7 +63,7 @@ export class CommentService {
     }
 
     // 작성자 확인
-    if (comment.userNickname !== userNickname) {
+    if (comment.userId !== userId) {
       throw new UnauthorizedException('댓글을 삭제할 권한이 없습니다.');
     }
 
@@ -77,7 +77,7 @@ export class CommentService {
     return {
       _id: comment._id,
       content: comment.content,
-      userNickname: comment.userNickname,
+      userId: comment.userId,
       boardId: comment.boardId,
       createdAt: comment.createdAt,
       updatedAt: comment.updatedAt,

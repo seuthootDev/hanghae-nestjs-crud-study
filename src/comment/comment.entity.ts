@@ -10,7 +10,7 @@ export class Comment {
   content: string;
 
   @Column()
-  userNickname: string;
+  userId: string;
 
   @Column()
   boardId: string;

@@ -28,15 +28,15 @@ export class BoardService {
   /**
    * 게시글 생성
    */
-  async createBoard(createBoardDto: CreateBoardDto, userNickname: string): Promise<BoardResponseDto> {
-    const board = await this.boardRepository.createBoard(createBoardDto, userNickname);
+  async createBoard(createBoardDto: CreateBoardDto, userId: string): Promise<BoardResponseDto> {
+    const board = await this.boardRepository.createBoard(createBoardDto, userId);
     return this.toResponseDto(board);
   }
 
   /**
    * 게시글 수정 (JWT 인증 + 비밀번호 확인)
    */
-  async updateBoard(id: string, updateBoardDto: UpdateBoardDto, userNickname: string, password: string): Promise<BoardResponseDto | null> {
+  async updateBoard(id: string, updateBoardDto: UpdateBoardDto, userId: string, password: string): Promise<BoardResponseDto | null> {
     const board = await this.boardRepository.findOne(id);
     
     if (!board) {
@@ -44,7 +44,7 @@ export class BoardService {
     }
 
     // 1단계: JWT 인증 확인 (작성자 확인)
-    if (board.userNickname !== userNickname) {
+    if (board.userId !== userId) {
       throw new UnauthorizedException('게시글을 수정할 권한이 없습니다.');
     }
 
@@ -61,7 +61,7 @@ export class BoardService {
   /**
    * 게시글 삭제 (JWT 인증 + 비밀번호 확인)
    */
-  async deleteBoard(id: string, userNickname: string, password: string) {
+  async deleteBoard(id: string, userId: string, password: string) {
     const board = await this.boardRepository.findOne(id);
     
     if (!board) {
@@ -69,7 +69,7 @@ export class BoardService {
     }
 
     // 1단계: JWT 인증 확인 (작성자 확인)
-    if (board.userNickname !== userNickname) {
+    if (board.userId !== userId) {
       throw new UnauthorizedException('게시글을 삭제할 권한이 없습니다.');
     }
 
@@ -90,7 +90,7 @@ export class BoardService {
       _id: board._id,
       title: board.title,
       content: board.content,
-      userNickname: board.userNickname,
+      userId: board.userId,
       createdAt: board.createdAt,
       updatedAt: board.updatedAt,
     };

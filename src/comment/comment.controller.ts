@@ -60,7 +60,7 @@ export class CommentController {
   @Post()
   async createComment(
     @Body() createCommentDto: CreateCommentDto,
-    @User('nickname') userNickname: string
+    @User('_id') userId: string
   ): Promise<CommentResponseDto> {
     // boardId 유효성 검사
     if (!this.isValidObjectId(createCommentDto.boardId)) {
@@ -73,7 +73,7 @@ export class CommentController {
       throw new NotFoundException('존재하지 않는 게시글입니다.');
     }
 
-    return this.commentService.createComment(createCommentDto, userNickname);
+    return this.commentService.createComment(createCommentDto, userId);
   }
 
   /**

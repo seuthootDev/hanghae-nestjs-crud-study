@@ -4,7 +4,7 @@ export class BoardResponseDto {
     _id: ObjectId;
     title: string;
     content: string;
-    userNickname: string;
+    userId: string;
     createdAt: Date;
     updatedAt: Date;
 } 

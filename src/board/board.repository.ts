@@ -5,33 +5,33 @@ import { Board } from './board.entity';
 import { CreateBoardDto } from './dto/create-board.dto';
 import { UpdateBoardDto } from './dto/update-board.dto';
 import { ObjectId } from 'mongodb';
-import * as bcrypt from 'bcrypt';
+import { PasswordService } from '../auth/password.service';
 
 @Injectable()
 export class BoardRepository {
     constructor(
         @InjectRepository(Board)
-        private boardRepository: Repository<Board>
+        private boardRepository: Repository<Board>,
+        private passwordService: PasswordService
     ) {}
 
     /**
      * 새로운 게시글을 생성하는 메서드
      * @param createBoardDto - 게시글 생성에 필요한 데이터
-     * @param userNickname - 사용자 닉네임 
+     * @param userId - JWT에서 추출한 사용자 _id
      * @returns 생성된 Board 엔티티
      */
-    async createBoard(createBoardDto: CreateBoardDto, userNickname: string): Promise<Board> {
+    async createBoard(createBoardDto: CreateBoardDto, userId: string): Promise<Board> {
         const { title, content, password } = createBoardDto;
         
         // 비밀번호 해시화
-        const saltRounds = 10;
-        const hashedPassword = await bcrypt.hash(password, saltRounds);
+        const hashedPassword = await this.passwordService.hashPassword(password);
         
         const board = this.boardRepository.create({ 
             title, 
             content,
             password: hashedPassword,
-            userNickname: userNickname, // 닉네임 문자열만 저장
+            userId: userId, // 닉네임 문자열만 저장
             createdAt: new Date(),
             updatedAt: new Date()
         });
@@ -96,6 +96,6 @@ export class BoardRepository {
         const board = await this.findOne(id);
         if (!board) return false;
         
-        return bcrypt.compare(password, board.password);
+        return this.passwordService.validatePassword(password, board.password);
     }
 } 

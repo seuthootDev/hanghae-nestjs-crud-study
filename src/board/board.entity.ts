@@ -15,8 +15,11 @@ export class Board {
     @Column()
     password: string;
 
+    // @Column()
+    // userNickname: string;
+
     @Column()
-    userNickname: string;
+    userId: string;
 
     @CreateDateColumn()
     createdAt: Date;

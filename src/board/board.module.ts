@@ -4,13 +4,14 @@ import { BoardController } from './board.controller';
 import { BoardService } from './board.service';
 import { BoardRepository } from './board.repository';
 import { Board } from './board.entity';
+import { PasswordService } from '../auth/password.service';
 
 @Module({
   imports: [
     TypeOrmModule.forFeature([Board]),
   ],
   controllers: [BoardController],
-  providers: [BoardService, BoardRepository],
+  providers: [BoardService, BoardRepository, PasswordService],
   exports: [BoardService, BoardRepository], // 다른 모듈에서 사용할 수 있도록
 })
 export class BoardModule {}

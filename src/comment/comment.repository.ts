@@ -17,14 +17,14 @@ export class CommentRepository {
   /**
    * 댓글 생성
    * @param createCommentDto 댓글 생성 데이터
-   * @param userNickname 사용자 닉네임
+   * @param userId 사용자 닉네임
    * @returns 생성된 댓글 정보
    */
-  async createComment(createCommentDto: CreateCommentDto, userNickname: string): Promise<CommentResponseDto> {
+  async createComment(createCommentDto: CreateCommentDto, userId: string): Promise<CommentResponseDto> {
     const comment = this.commentRepository.create({
       content: createCommentDto.content,
       boardId: createCommentDto.boardId,
-      userNickname: userNickname,
+      userId: userId,
       createdAt: new Date(),
       updatedAt: new Date(),
     });
@@ -35,7 +35,7 @@ export class CommentRepository {
       _id: savedComment._id,
       content: savedComment.content,
       boardId: savedComment.boardId,
-      userNickname: savedComment.userNickname,
+      userId: savedComment.userId,
       createdAt: savedComment.createdAt,
       updatedAt: savedComment.updatedAt,
     };
@@ -85,7 +85,7 @@ export class CommentRepository {
       _id: updatedComment._id,
       content: updatedComment.content,
       boardId: updatedComment.boardId,
-      userNickname: updatedComment.userNickname,
+      userId: updatedComment.userId,
       createdAt: updatedComment.createdAt,
       updatedAt: updatedComment.updatedAt,
     };

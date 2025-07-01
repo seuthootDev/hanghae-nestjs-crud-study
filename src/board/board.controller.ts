@@ -37,9 +37,9 @@ export class BoardController {
   @Post()
   async createBoard(
     @Body() createBoardDto: CreateBoardDto,
-    @User('nickname') userNickname: string
+    @User('_id') userId: string
   ): Promise<BoardResponseDto> {
-    return this.boardService.createBoard(createBoardDto, userNickname);
+    return this.boardService.createBoard(createBoardDto, userId);
   }
 
   /**
@@ -50,13 +50,13 @@ export class BoardController {
   async updateBoard(
     @Param('id') id: string,
     @Body() updateBoardDto: UpdateBoardDto,
-    @User('nickname') userNickname: string
+    @User('_id') userId: string
   ): Promise<BoardResponseDto> {
     const { password, ...updateData } = updateBoardDto;
     if (!password) {
       throw new Error('비밀번호는 필수입니다.');
     }
-    const updatedBoard = await this.boardService.updateBoard(id, updateData, userNickname, password);
+    const updatedBoard = await this.boardService.updateBoard(id, updateData, userId, password);
     if (!updatedBoard) {
       throw new Error('게시글을 찾을 수 없습니다.');
     }
@@ -72,12 +72,12 @@ export class BoardController {
   async deleteBoard(
     @Param('id') id: string,
     @Body() body: { password: string },
-    @User('nickname') userNickname: string
+    @User('_id') userId: string
   ) {
     if (!body.password) {
       throw new Error('비밀번호는 필수입니다.');
     }
-    await this.boardService.deleteBoard(id, userNickname, body.password);
+    await this.boardService.deleteBoard(id, userId, body.password);
     
     return { message: '게시글이 삭제되었습니다.' };
   }
